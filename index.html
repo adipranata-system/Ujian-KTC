@@ -259,7 +259,7 @@
 
     </div>
 
-    <!-- VIEW 0: REGISTRASI & VERIFIKASI TERTUTUP (BERSIH DARI KOTAK CONFIG URL) -->
+    <!-- VIEW 0: REGISTRASI & VERIFIKASI TERTUTUP -->
     <div id="viewRegistration" class="hidden max-w-2xl mx-auto bg-white border border-slate-200 rounded-3xl shadow-xl p-6 sm:p-8 space-y-6">
       <div class="flex items-center justify-between border-b border-slate-100 pb-4">
         <div>
@@ -337,7 +337,7 @@
           </label>
         </div>
 
-        <!-- VERIFIKASI WAJAH & PRESENSI KAMERA (AUDIO: FALSE SECARA TEGAS) -->
+        <!-- VERIFIKASI WAJAH & PRESENSI KAMERA (MURNI LIVE WEBCAM) -->
         <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 space-y-3.5">
           <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
             <div class="flex items-center gap-2">
@@ -348,10 +348,10 @@
           </div>
 
           <p class="text-[11px] text-slate-500 leading-relaxed">
-            Untuk memastikan keabsahan kandidat, Anda wajib mengambil 1 foto presensi langsung menggunakan kamera perangkat (bukan dari galeri). Pastikan wajah terlihat jelas di dalam bingkai oval tanpa kacamata hitam atau masker.
+            Untuk memastikan keabsahan kandidat, Anda wajib mengambil 1 foto presensi langsung menggunakan kamera perangkat. Posisikan wajah Anda di dalam bingkai oval tanpa kacamata hitam atau masker.
           </p>
 
-          <!-- Viewfinder & Canvas Preview Container (Murni Live Video Stream) -->
+          <!-- Viewfinder & Canvas Preview Container -->
           <div class="relative max-w-xs mx-auto aspect-square rounded-2xl overflow-hidden bg-slate-900 border-2 border-slate-300 shadow-inner flex items-center justify-center">
             <video id="webcamVideo" autoplay playsinline muted class="w-full h-full object-cover -scale-x-100 hidden z-10"></video>
             <img id="snapshotPreview" class="hidden w-full h-full object-cover z-10" alt="Foto Presensi Kandidat">
@@ -442,7 +442,7 @@
         </div>
       </div>
 
-      <!-- Bilah Progres Pengerjaan Interaktif (Visual Progress Bar) -->
+      <!-- Bilah Progres Pengerjaan Interaktif -->
       <div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm space-y-2">
         <div class="flex items-center justify-between text-xs">
           <div class="flex items-center gap-2">
@@ -502,7 +502,7 @@
 
     </div>
 
-    <!-- VIEW 2: TANDA TERIMA RESMI (SKOR TETAP DIRAHASIAKAN DARI LAYAR) -->
+    <!-- VIEW 2: TANDA TERIMA RESMI (SKOR DIRAHASIAKAN) -->
     <div id="viewResults" class="hidden space-y-6 max-w-3xl mx-auto">
       
       <!-- Card Banner Konfirmasi Selesai Ujian -->
@@ -606,7 +606,7 @@
 
   </main>
 
-  <!-- Dialog Peringatan Custom (Z-Index Tertinggi z-[9999]) -->
+  <!-- Dialog Peringatan Custom -->
   <div id="customDialogModal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-4 text-center transform transition-all">
       <div id="dialogIconBox" class="w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 mx-auto flex items-center justify-center text-3xl shadow-inner border border-amber-200">
@@ -727,7 +727,7 @@
     };
 
     // ==========================================
-    // FUNGSI NAVIGASI TAMPILAN (VIEW ROUTING)
+    // FUNGSI NAVIGASI TAMPILAN
     // ==========================================
     function goToRegistration() {
       document.getElementById('viewLandingPortal').classList.add('hidden');
@@ -771,7 +771,7 @@
     }
 
     // ==========================================
-    // FUNGSI KAMERA (MURNI LIVE WEBCAM TANPA AKSES FILE / GALERI)
+    // FUNGSI KAMERA (FIX BLACK SCREEN ISSUE)
     // ==========================================
     async function initiateCameraStream() {
       const videoEl = document.getElementById('webcamVideo');
@@ -780,16 +780,14 @@
       const btnStart = document.getElementById('btnStartCamera');
       const btnStartLabel = document.getElementById('btnStartCameraLabel');
       const standbyNotice = document.getElementById('cameraStandbyNotice');
-      const standbyTitle = document.getElementById('standbyTitle');
-      const standbySubtitle = document.getElementById('standbySubtitle');
       const faceGuide = document.getElementById('faceGuideBox');
       const alertEl = document.getElementById('photoStatusAlert');
 
-      badgeEl.textContent = 'Menghubungkan Kamera...';
-      badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-700 border border-amber-200';
+      if (badgeEl) {
+        badgeEl.textContent = 'Menghubungkan Kamera...';
+        badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-700 border border-amber-200';
+      }
       if (btnStartLabel) btnStartLabel.textContent = 'Membuka Kamera...';
-      if (standbyTitle) standbyTitle.textContent = 'Menghubungkan ke Perangkat...';
-      if (standbySubtitle) standbySubtitle.textContent = 'Harap izinkan (Allow) jika muncul notifikasi izin kamera di browser.';
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         showCustomDialog(
@@ -806,11 +804,8 @@
           cameraMediaStream.getTracks().forEach(track => track.stop());
         }
 
-        // Gunakan parameter kamera universal (paling kompatibel di semua browser & iframe)
         const constraints = {
-          video: {
-            facingMode: 'user'
-          },
+          video: { facingMode: 'user' },
           audio: false
         };
 
@@ -823,7 +818,7 @@
         videoEl.setAttribute('muted', '');
         videoEl.srcObject = stream;
 
-        // Buka tampilan video seketika
+        // Buka tampilan video seketika dan sembunyikan kotak hitam penutup
         videoEl.classList.remove('hidden');
         if (standbyNotice) standbyNotice.classList.add('hidden');
         if (faceGuide) faceGuide.classList.remove('hidden');
@@ -832,12 +827,13 @@
           await videoEl.play();
         } catch (playErr) {
           console.warn("Autoplay ditahan, mencoba ulang:", playErr);
-          // Fallback paksa play
           videoEl.play();
         }
 
-        badgeEl.textContent = 'Kamera Aktif (Live)';
-        badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        if (badgeEl) {
+          badgeEl.textContent = 'Kamera Aktif (Live)';
+          badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        }
         
         if (btnCapture) btnCapture.disabled = false;
         if (btnStart) btnStart.classList.add('hidden');
@@ -849,16 +845,15 @@
 
       } catch (err) {
         console.error('Gagal mengakses kamera live:', err);
-        badgeEl.textContent = 'Izin Kamera Ditolak / Dibatasi';
-        badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-red-50 text-red-700 border border-red-200';
+        if (badgeEl) {
+          badgeEl.textContent = 'Izin Kamera Ditolak / Dibatasi';
+          badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-red-50 text-red-700 border border-red-200';
+        }
         if (btnStartLabel) btnStartLabel.textContent = 'Coba Nyalakan Lagi';
-        
-        if (standbyTitle) standbyTitle.textContent = 'Akses Kamera Dibatasi';
-        if (standbySubtitle) standbySubtitle.textContent = 'Klik ikon setelan/gembok pada bilah browser dan ubah Kamera menjadi Izinkan (Allow).';
 
         showCustomDialog(
           'Izin Kamera Diblokir Browser',
-          'Browser tidak mengizinkan akses kamera.<br><br><strong>Solusi:</strong><br>1. Klik ikon perizinan/gembok di bilah alamat atas browser.<br>2. Izinkan (Allow) akses <strong>Kamera</strong>.<br>3. Muat ulang halaman Google Sites lalu coba kembali.',
+          'Browser tidak mengizinkan akses kamera.<br><br><strong>Solusi:</strong><br>1. Klik ikon perizinan/gembok di bilah alamat browser.<br>2. Izinkan (Allow) akses <strong>Kamera</strong>.<br>3. Muat ulang halaman lalu coba kembali.',
           true
         );
       }
@@ -902,8 +897,10 @@
       if (btnCapture) btnCapture.classList.add('hidden');
       if (btnRetake) btnRetake.classList.remove('hidden');
 
-      badgeEl.textContent = 'Foto Presensi Terkunci';
-      badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+      if (badgeEl) {
+        badgeEl.textContent = 'Foto Presensi Terkunci';
+        badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+      }
       if (alertEl) {
         alertEl.textContent = '✓ Foto presensi berhasil diambil langsung dari kamera live. Silakan mulai sesi ujian.';
         alertEl.className = 'text-center text-[11px] font-bold text-emerald-700';
@@ -946,238 +943,6 @@
       }
 
       initiateCameraStream();
-    }
-
-    function goToLandingPortal() {
-      document.getElementById('viewRegistration').classList.add('hidden');
-      document.getElementById('viewExamArena').classList.add('hidden');
-      document.getElementById('viewResults').classList.add('hidden');
-      document.getElementById('viewLandingPortal').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function showCustomDialog(title, message, isWarning = true) {
-      document.getElementById('dialogTitle').innerHTML = title;
-      document.getElementById('dialogMessage').innerHTML = message;
-      const iconBox = document.getElementById('dialogIconBox');
-      const icon = document.getElementById('dialogIcon');
-
-      if (isWarning) {
-        iconBox.className = 'w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 mx-auto flex items-center justify-center text-3xl shadow-inner border border-amber-200';
-        icon.className = 'fa-solid fa-circle-exclamation';
-      } else {
-        iconBox.className = 'w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center text-3xl shadow-inner border border-emerald-200';
-        icon.className = 'fa-solid fa-circle-check';
-      }
-
-      document.getElementById('customDialogModal').classList.remove('hidden');
-    }
-
-    function dismissCustomDialog() {
-      document.getElementById('customDialogModal').classList.add('hidden');
-    }
-
-    function dismissCheatWarning() {
-      document.getElementById('cheatWarningModal').classList.add('hidden');
-    }
-
-    // ==========================================
-    // FUNGSI KAMERA (DUAL-ENGINE ANTI-BLOKIR GOOGLE SITES)
-    // ==========================================
-    function triggerNativeCamera() {
-      const nativeInput = document.getElementById('nativeCameraInput');
-      if (nativeInput) {
-        nativeInput.click();
-      }
-    }
-
-    async function initiateCameraStream() {
-      const videoEl = document.getElementById('webcamVideo');
-      const badgeEl = document.getElementById('cameraBadgeStatus');
-      const btnCapture = document.getElementById('btnCapturePhoto');
-      const btnStart = document.getElementById('btnStartCamera');
-      const alertEl = document.getElementById('photoStatusAlert');
-
-      badgeEl.textContent = 'Menghubungkan Kamera...';
-      badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-700 border border-amber-200';
-
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        triggerNativeCamera();
-        return;
-      }
-
-      try {
-        if (cameraMediaStream) {
-          cameraMediaStream.getTracks().forEach(track => track.stop());
-        }
-
-        const constraints = {
-          video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 640 } },
-          audio: false
-        };
-
-        cameraMediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-        videoEl.srcObject = cameraMediaStream;
-        await videoEl.play();
-
-        badgeEl.textContent = 'Kamera Aktif';
-        badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
-        if (btnCapture) btnCapture.disabled = false;
-        if (btnStart) btnStart.classList.add('hidden');
-        if (alertEl) {
-          alertEl.textContent = 'Posisikan wajah Anda tepat di dalam bingkai, lalu tekan "Ambil Foto Presensi".';
-          alertEl.className = 'text-center text-[11px] font-bold text-slate-600';
-        }
-      } catch (err) {
-        console.warn('Iframe Google Sites membatasi getUserMedia, mengaktifkan kamera native:', err);
-        badgeEl.textContent = 'Mode Kamera Terbuka';
-        badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-700 border border-amber-200';
-        if (alertEl) alertEl.textContent = 'Membuka kamera perangkat Anda...';
-        triggerNativeCamera();
-      }
-    }
-
-    function handleNativeCameraCapture(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvasEl = document.getElementById('snapshotCanvas');
-          const previewImg = document.getElementById('snapshotPreview');
-          const videoEl = document.getElementById('webcamVideo');
-          const faceGuide = document.getElementById('faceGuideBox');
-          const btnCapture = document.getElementById('btnCapturePhoto');
-          const btnStartCam = document.getElementById('btnStartCamera');
-          const btnNative = document.getElementById('btnNativeCamera');
-          const btnRetake = document.getElementById('btnRetakePhoto');
-          const btnStartExam = document.getElementById('btnStartExam');
-          const alertEl = document.getElementById('photoStatusAlert');
-          const badgeEl = document.getElementById('cameraBadgeStatus');
-
-          canvasEl.width = 320;
-          canvasEl.height = 320;
-          const ctx = canvasEl.getContext('2d');
-
-          const minDim = Math.min(img.width, img.height);
-          const startX = (img.width - minDim) / 2;
-          const startY = (img.height - minDim) / 2;
-
-          ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, 320, 320);
-
-          candidateData.fotoBase64 = canvasEl.toDataURL('image/jpeg', 0.65);
-
-          previewImg.src = candidateData.fotoBase64;
-          previewImg.classList.remove('hidden');
-          videoEl.classList.add('hidden');
-          faceGuide.classList.add('hidden');
-
-          if (btnCapture) btnCapture.classList.add('hidden');
-          if (btnStartCam) btnStartCam.classList.add('hidden');
-          if (btnNative) btnNative.classList.add('hidden');
-          if (btnRetake) btnRetake.classList.remove('hidden');
-
-          badgeEl.textContent = 'Presensi Terverifikasi';
-          badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
-          if (alertEl) {
-            alertEl.textContent = '✓ Foto presensi berhasil diambil. Silakan tekan tombol Mulai Ujian di bawah.';
-            alertEl.className = 'text-center text-[11px] font-bold text-emerald-700';
-          }
-
-          if (btnStartExam) {
-            btnStartExam.disabled = false;
-            document.getElementById('btnStartExamLabel').textContent = 'MASUK KE RUANG UJIAN TERPADU';
-          }
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function captureSnapshotFromStream() {
-      const videoEl = document.getElementById('webcamVideo');
-      const canvasEl = document.getElementById('snapshotCanvas');
-      const previewImg = document.getElementById('snapshotPreview');
-      const faceGuide = document.getElementById('faceGuideBox');
-      const btnCapture = document.getElementById('btnCapturePhoto');
-      const btnStartCam = document.getElementById('btnStartCamera');
-      const btnNative = document.getElementById('btnNativeCamera');
-      const btnRetake = document.getElementById('btnRetakePhoto');
-      const btnStart = document.getElementById('btnStartExam');
-      const alertEl = document.getElementById('photoStatusAlert');
-      const badgeEl = document.getElementById('cameraBadgeStatus');
-
-      if (!videoEl.videoWidth || !videoEl.videoHeight) {
-        triggerNativeCamera();
-        return;
-      }
-
-      canvasEl.width = 320;
-      canvasEl.height = 320;
-      const ctx = canvasEl.getContext('2d');
-      ctx.translate(320, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(videoEl, 0, 0, 320, 320);
-
-      candidateData.fotoBase64 = canvasEl.toDataURL('image/jpeg', 0.65);
-
-      previewImg.src = candidateData.fotoBase64;
-      previewImg.classList.remove('hidden');
-      videoEl.classList.add('hidden');
-      faceGuide.classList.add('hidden');
-
-      if (btnCapture) btnCapture.classList.add('hidden');
-      if (btnStartCam) btnStartCam.classList.add('hidden');
-      if (btnNative) btnNative.classList.add('hidden');
-      if (btnRetake) btnRetake.classList.remove('hidden');
-
-      badgeEl.textContent = 'Presensi Terverifikasi';
-      badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
-      if (alertEl) {
-        alertEl.textContent = '✓ Foto presensi berhasil diverifikasi. Silakan tekan tombol Mulai Ujian di bawah.';
-        alertEl.className = 'text-center text-[11px] font-bold text-emerald-700';
-      }
-
-      if (btnStart) {
-        btnStart.disabled = false;
-        document.getElementById('btnStartExamLabel').textContent = 'MASUK KE RUANG UJIAN TERPADU';
-      }
-
-      if (cameraMediaStream) {
-        cameraMediaStream.getTracks().forEach(track => track.stop());
-      }
-    }
-
-    function retakeSnapshotPhoto() {
-      candidateData.fotoBase64 = "";
-      const nativeInput = document.getElementById('nativeCameraInput');
-      if (nativeInput) nativeInput.value = "";
-
-      document.getElementById('snapshotPreview').classList.add('hidden');
-      document.getElementById('webcamVideo').classList.remove('hidden');
-      document.getElementById('faceGuideBox').classList.remove('hidden');
-      document.getElementById('btnRetakePhoto').classList.add('hidden');
-      
-      const btnNative = document.getElementById('btnNativeCamera');
-      if (btnNative) btnNative.classList.remove('hidden');
-      
-      const btnCapture = document.getElementById('btnCapturePhoto');
-      if (btnCapture) btnCapture.classList.remove('hidden');
-
-      const btnStartCam = document.getElementById('btnStartCamera');
-      if (btnStartCam) btnStartCam.classList.remove('hidden');
-
-      const btnStart = document.getElementById('btnStartExam');
-      btnStart.disabled = true;
-      document.getElementById('btnStartExamLabel').textContent = 'AMBIL FOTO TERLEBIH DAHULU UNTUK MEMULAI';
-
-      const alertEl = document.getElementById('photoStatusAlert');
-      if (alertEl) {
-        alertEl.textContent = '* Silakan ambil foto selfie presensi wajah Anda.';
-        alertEl.className = 'text-center text-[11px] font-bold text-amber-700';
-      }
     }
 
     // ==========================================
@@ -1594,7 +1359,7 @@
         syncStatusTitle.textContent = 'Data & Foto Berhasil Tersimpan ke Database';
         syncStatusSubtitle.textContent = 'Seluruh lembar respon dan foto presensi telah tercatat resmi di database panitia seleksi.';
       } catch (err) {
-        console.warn('Pengiriman background payload terselesaikan.', err);
+        console.warn('Pengiriman background payload selesai:', err);
         syncStatusIcon.className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg shrink-0 border border-emerald-200';
         syncStatusIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
         syncStatusTitle.textContent = 'Data Terkunci di Browser Klien';
