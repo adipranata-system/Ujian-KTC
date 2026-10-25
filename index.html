@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Portal Ujian Seleksi Online - PT KTC Coal Mining &amp; Energy</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -27,6 +27,16 @@
       user-select: none;
     }
     html { scroll-behavior: smooth; }
+    .animate-pulse-slow {
+      animation: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulseSoft {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .pulse-soft {
+      animation: pulseSoft 1.5s infinite;
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-amber-400 selection:text-slate-950 exam-unselectable">
@@ -35,7 +45,7 @@
   <header class="bg-white/95 backdrop-blur-md text-slate-900 border-b border-slate-200 shadow-sm sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xl shadow-md shrink-0">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xl shadow-md shrink-0 ring-2 ring-amber-400/30">
           <i class="fa-solid fa-helmet-safety"></i>
         </div>
         <div>
@@ -50,27 +60,48 @@
       <!-- Live Monitoring Widget (Hanya Tampil Saat Ujian Berjalan) -->
       <div id="examMonitor" class="hidden flex flex-wrap items-center gap-2 sm:gap-3 self-end md:self-auto">
         <!-- Anti Cheat Violation Tracker -->
-        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold shadow-xs">
           <i class="fa-solid fa-shield-halved text-red-500"></i>
-          <span>Pelanggaran Tab:</span>
+          <span class="hidden sm:inline">Catatan Integritas Sesi:</span>
+          <span class="sm:hidden">Integritas:</span>
           <span id="tabSwitchCount" class="font-bold text-white px-1.5 py-0.5 bg-red-600 rounded">0x</span>
         </div>
 
-        <!-- Module Countdown Timer -->
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-400 shadow-inner">
-          <i class="fa-solid fa-stopwatch text-sm animate-pulse"></i>
-          <span class="text-xs font-bold text-slate-300" id="timerLabel">Timer:</span>
+        <!-- Module Countdown Timer (Adaptive Alert Colors) -->
+        <div id="timerContainer" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-400 shadow-inner transition-colors duration-300">
+          <i id="timerIcon" class="fa-solid fa-stopwatch text-sm animate-pulse"></i>
+          <span class="text-xs font-bold text-slate-300 hidden sm:inline" id="timerLabel">Sisa Waktu:</span>
           <span id="timerDisplay" class="font-mono-code font-black text-sm sm:text-base tracking-wider text-amber-400">18:00</span>
         </div>
 
         <!-- Tombol Selesai Cepat Modul Berjalan -->
-        <button id="btnSubmitCurrentModule" onclick="confirmSubmitCurrentModule()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
-          <i class="fa-solid fa-lock"></i>
-          <span id="btnSubmitModuleLabel">Kunci Modul</span>
+        <button id="btnSubmitCurrentModule" onclick="confirmSubmitCurrentModule()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+          <i class="fa-solid fa-lock text-[11px]"></i>
+          <span id="btnSubmitModuleLabel">Simpan &amp; Kunci Jawaban Modul</span>
         </button>
       </div>
     </div>
   </header>
+
+  <!-- Overlay Proteksi Anti-Screenshot / Multi-Monitor Blur -->
+  <div id="antiScreenshotOverlay" class="hidden fixed inset-0 z-[9990] bg-slate-950/90 backdrop-blur-3xl flex flex-col items-center justify-center p-6 text-center text-white space-y-4">
+    <div class="w-16 h-16 rounded-2xl bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center text-3xl animate-pulse">
+      <i class="fa-solid fa-eye-slash"></i>
+    </div>
+    <div class="max-w-md space-y-2">
+      <h3 class="text-xl font-black text-white">Peringatan: Jendela Asesmen Kehilangan Fokus Aktif</h3>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Sistem mendeteksi aktivitas di luar lembar evaluasi (seperti perpindahan kursor ke monitor kedua, meminimalkan jendela, atau percobaan tangkapan layar). Seluruh catatan penyimpangan fokus terekam secara otomatis dalam Lembar Audit Integritas Tim Asesor PT KTC.
+      </p>
+    </div>
+    <div class="p-3 bg-red-950/60 border border-red-800/80 rounded-xl text-xs font-mono-code text-red-300">
+      Total Catatan Integritas: <span id="overlayCheatCount" class="font-black text-white">0</span>x (Tercatat Resmi di Sistem Audit HRD)
+    </div>
+    <button type="button" onclick="resumeExamFocus()" class="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition active:scale-95 flex items-center gap-2">
+      <i class="fa-solid fa-expand"></i>
+      <span>Kembali Fokus ke Lembar Ujian</span>
+    </button>
+  </div>
 
   <!-- Container Konten Aplikasi -->
   <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 flex-1 w-full space-y-6">
@@ -327,21 +358,21 @@
         <!-- Pakta Integritas Site -->
         <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-2">
           <p class="font-extrabold flex items-center gap-1.5 uppercase text-amber-700">
-            <i class="fa-solid fa-triangle-exclamation"></i> Pakta Integritas &amp; Komitmen Ujian Daring:
+            <i class="fa-solid fa-triangle-exclamation"></i> Pakta Integritas &amp; Komitmen Evaluasi Mandiri:
           </p>
           <label class="flex items-start gap-2.5 cursor-pointer">
             <input type="checkbox" id="candAgreement" required class="mt-0.5 w-4 h-4 text-amber-600 rounded border-slate-300 bg-white focus:ring-amber-500">
             <span class="leading-relaxed">
-              Saya menyatakan bahwa saya adalah pemilik NIK resmi di atas dan berkomitmen mengerjakan 145 butir evaluasi ini <strong>secara mandiri, jujur, tanpa joki atau kecerdasan buatan (AI)</strong>. Saya memahami sistem mendeteksi perpindahan tab layar dan siap didiskualifikasi jika terbukti curang.
+              Dengan ini saya menyatakan bahwa identitas yang terdaftar adalah sah milik saya pribadi. Saya berkomitmen menyelesaikan seluruh rangkaian asesmen secara mandiri, jujur, dan berintegritas tanpa bantuan pihak ketiga, alat bantu eksternal, maupun kecerdasan buatan (AI). Saya memahami dan menyetujui bahwa sistem melakukan pencatatan aktivitas layar secara otomatis, dan ketidaksesuaian integritas dapat membatalkan proses seleksi saya.
             </span>
           </label>
         </div>
 
-        <!-- VERIFIKASI WAJAH & PRESENSI KAMERA (MURNI LIVE WEBCAM) -->
+        <!-- VERIFIKASI WAJAH & PRESENSI KAMERA DENGAN WATERMARK FORENSIK -->
         <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 space-y-3.5">
           <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
             <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+              <span id="camStatusDot" class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
               <h4 class="text-xs font-black uppercase tracking-wider text-slate-900">Presensi Verifikasi Wajah (Wajib Kamera Live)</h4>
             </div>
             <span id="cameraBadgeStatus" class="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-700 border border-amber-200">Kamera Belum Aktif</span>
@@ -358,7 +389,9 @@
 
             <div id="faceGuideBox" class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center p-4 z-20 hidden">
               <div class="w-44 h-56 rounded-[50%] border-2 border-dashed border-amber-400/90 shadow-[0_0_20px_rgba(245,158,11,0.3)]"></div>
-              <span class="mt-2 text-[10px] font-bold text-amber-300 bg-black/70 px-2 py-0.5 rounded-full backdrop-blur-xs">Posisikan Wajah di Sini</span>
+              <span class="mt-2 text-[10px] font-bold text-amber-300 bg-black/70 px-2.5 py-0.5 rounded-full backdrop-blur-xs flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Viewfinder
+              </span>
             </div>
 
             <!-- Placeholder saat kamera belum menyala -->
@@ -403,7 +436,7 @@
     </div>
 
     <!-- VIEW 1: ARENA UJIAN TERPADU -->
-    <div id="viewExamArena" class="hidden space-y-4">
+    <div id="viewExamArena" class="hidden space-y-4 pb-20 lg:pb-0">
       
       <!-- Navigasi Modul (Linear Step Tracker) -->
       <div class="bg-white border border-slate-200 rounded-2xl p-2.5 shadow-sm flex items-center justify-between overflow-x-auto gap-2">
@@ -442,7 +475,7 @@
         </div>
       </div>
 
-      <!-- Bilah Progres Pengerjaan Interaktif -->
+      <!-- Bilah Progres Pengerjaan Interaktif (Visual Progress Bar) -->
       <div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm space-y-2">
         <div class="flex items-center justify-between text-xs">
           <div class="flex items-center gap-2">
@@ -462,23 +495,24 @@
       <!-- Grid Layout: Sidebar Palet Nomor Soal + Kontainer Soal -->
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         
-        <!-- Sidebar Palet Kisi Nomor Soal -->
-        <aside class="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm lg:sticky lg:top-20 order-2 lg:order-1 space-y-3">
+        <!-- Sidebar Palet Kisi Nomor Soal (Upgraded Ergonomics & 3-State Status) -->
+        <aside class="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm lg:sticky lg:top-20 order-2 lg:order-1 space-y-3.5">
           <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <h4 class="text-xs font-black uppercase text-slate-800 tracking-wider flex items-center gap-1.5">
               <i class="fa-solid fa-table-cells text-amber-500"></i> Kisi Nomor Soal
             </h4>
-            <span class="text-[10px] text-slate-400 font-semibold">Klik no untuk lompat</span>
+            <span class="text-[10px] text-slate-400 font-semibold">Klik untuk lompat</span>
           </div>
 
-          <div id="questionGridContainer" class="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 gap-1.5 max-h-72 overflow-y-auto pr-1">
+          <div id="questionGridContainer" class="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 gap-2 max-h-80 overflow-y-auto pr-1">
             <!-- Populated dynamically by JavaScript -->
           </div>
 
-          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
-            <span class="flex items-center gap-1 text-slate-500"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span> Terisi</span>
-            <span class="flex items-center gap-1 text-slate-500"><span class="w-2.5 h-2.5 rounded-full bg-slate-100 border border-slate-300 inline-block"></span> Kosong</span>
-            <button type="button" onclick="jumpToFirstUnanswered()" class="text-amber-600 font-bold hover:underline">Cek Kosong</button>
+          <div class="pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+            <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-3 rounded-md bg-emerald-600 inline-block shadow-xs"></span> Terisi</span>
+            <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-3 rounded-md bg-amber-400 inline-block shadow-xs"></span> Ragu</span>
+            <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-3 rounded-md bg-slate-100 border border-slate-300 inline-block"></span> Kosong</span>
+            <button type="button" onclick="jumpToFirstUnanswered()" class="text-amber-600 font-extrabold hover:underline">Cari Kosong</button>
           </div>
         </aside>
 
@@ -488,11 +522,11 @@
             <!-- Populated dynamically by JavaScript -->
           </div>
 
-          <!-- Bottom Action Bar -->
-          <div class="flex items-center justify-end gap-3 pt-2">
+          <!-- Bottom Action Bar (Desktop) -->
+          <div class="hidden lg:flex items-center justify-end gap-3 pt-2">
             <button id="btnFooterSubmitModule" onclick="confirmSubmitCurrentModule()" class="px-7 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-black transition flex items-center gap-2 shadow-md active:scale-95">
               <i class="fa-solid fa-lock"></i>
-              <span id="btnFooterSubmitLabel">SELESAIKAN &amp; KUNCI JAWABAN MODUL 1</span>
+              <span id="btnFooterSubmitLabel">SELESAIKAN MODUL 1 &amp; LANJUT KE TAHAP BERIKUTNYA</span>
               <i class="fa-solid fa-arrow-right"></i>
             </button>
           </div>
@@ -502,7 +536,19 @@
 
     </div>
 
-    <!-- VIEW 2: TANDA TERIMA RESMI (SKOR DIRAHASIAKAN) -->
+    <!-- Mobile Floating Bottom Action Dock (Sticky UX on Phones) -->
+    <div id="mobileExamDock" class="hidden fixed bottom-0 left-0 right-0 z-30 lg:hidden bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 shadow-lg flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-slate-500">Progres:</span>
+        <span id="dockCounter" class="text-xs font-mono-code font-bold text-slate-800">0/50</span>
+      </div>
+      <button onclick="confirmSubmitCurrentModule()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition flex items-center gap-1.5 shadow-md active:scale-95">
+        <i class="fa-solid fa-lock text-[11px]"></i>
+        <span>Simpan &amp; Lanjut</span>
+      </button>
+    </div>
+
+    <!-- VIEW 2: TANDA TERIMA RESMI (SKOR TETAP DIRAHASIAKAN DARI LAYAR) -->
     <div id="viewResults" class="hidden space-y-6 max-w-3xl mx-auto">
       
       <!-- Card Banner Konfirmasi Selesai Ujian -->
@@ -532,7 +578,7 @@
             <span class="text-[11px] font-bold uppercase text-amber-700 tracking-wider flex items-center gap-1.5">
               <i class="fa-solid fa-receipt"></i> Bukti Registrasi Penyelesaian Ujian
             </span>
-            <span id="receiptTimestamp" class="font-mono-code text-[11px] text-slate-500">2026-10-25 08:15:00</span>
+            <span id="receiptTimestamp" class="font-mono-code text-[11px] text-slate-500">2026-10-25 17:45:00</span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div>
@@ -592,8 +638,8 @@
               <i class="fa-solid fa-cloud-arrow-up animate-bounce"></i>
             </div>
             <div>
-              <h4 id="syncStatusTitle" class="text-sm font-bold text-slate-900">Sinkronisasi Database Rekrutmen Site</h4>
-              <p id="syncStatusSubtitle" class="text-xs text-slate-500">Rangkuman hasil ujian Anda sedang dikirimkan langsung ke spreadsheet panitia seleksi...</p>
+              <h4 id="syncStatusTitle" class="text-sm font-bold text-slate-900">Sinkronisasi Sistem Evaluasi Pusat</h4>
+              <p id="syncStatusSubtitle" class="text-xs text-slate-500">Seluruh lembar respon dan bukti presensi Anda sedang diverifikasi serta disinkronkan ke Pusat Data Rekrutmen PT KTC Coal Mining &amp; Energy...</p>
             </div>
           </div>
           <div class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-50 text-slate-600 border border-slate-200 shrink-0 self-center sm:self-auto">
@@ -606,7 +652,7 @@
 
   </main>
 
-  <!-- Dialog Peringatan Custom -->
+  <!-- Dialog Peringatan Custom (Z-Index Tertinggi z-[9999]) -->
   <div id="customDialogModal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-4 text-center transform transition-all">
       <div id="dialogIconBox" class="w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 mx-auto flex items-center justify-center text-3xl shadow-inner border border-amber-200">
@@ -653,11 +699,13 @@
         <i class="fa-solid fa-triangle-exclamation"></i>
       </div>
       <div>
-        <h3 class="text-lg font-black text-slate-900">PERINGATAN PELANGGARAN TAB!</h3>
-        <p class="text-xs text-slate-600 mt-1 leading-relaxed">Sistem mendeteksi Anda meninggalkan jendela portal ujian atau berpindah ke aplikasi lain. Pelanggaran dicatat ke sistem audit rekrutmen!</p>
+        <h3 class="text-lg font-black text-slate-900">PERINGATAN PENYIMPANGAN FOKUS LAYAR</h3>
+        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+          Sistem mendeteksi aktivitas di luar lembar evaluasi (berpindah jendela atau aplikasi lain). Seluruh riwayat kehilangan fokus terekam secara otomatis dalam Lembar Audit Integritas Tim Asesor PT KTC.
+        </p>
       </div>
       <div class="p-3 bg-red-50 rounded-xl border border-red-200 text-xs font-bold text-red-700">
-        Total Perpindahan Terdeteksi: <span id="modalCheatCounter" class="text-base font-black text-red-600">1</span> Kali
+        Total Catatan Integritas: <span id="modalCheatCounter" class="text-base font-black text-red-600">1</span> Kali
       </div>
       <button onclick="dismissCheatWarning()" class="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl transition active:scale-95 shadow-sm">
         SAYA MENGERTI &amp; KEMBALI FOKUS KE UJIAN
@@ -682,7 +730,7 @@
     </div>
   </footer>
 
-  <!-- SCRIPT LOGIKA APLIKASI & BANK SOAL TERLENGKAP -->
+  <!-- SCRIPT LOGIKA APLIKASI & BANK SOAL LENGKAP -->
   <script>
     // ==========================================
     // KONFIGURASI WEBHOOK & VARIABEL GLOBAL STATE
@@ -696,6 +744,8 @@
     let examTimerInterval = null;
     let currentModuleSecondsLeft = 0;
     let currentFontSizeLevel = 0;
+    let lastBlurTimestamp = 0;
+    let isViolationCooldownActive = false; // Debounce guard untuk mencegah multiple counter
 
     const moduleDurations = {
       1: 18 * 60, // 18 menit
@@ -723,16 +773,18 @@
       posisiKey: "storeman",
       fotoBase64: "",
       tabViolations: 0,
-      answers: {}
+      answers: {},
+      flagged: {} // Tracking status ragu-ragu
     };
 
     // ==========================================
-    // FUNGSI NAVIGASI TAMPILAN
+    // FUNGSI NAVIGASI TAMPILAN (VIEW ROUTING)
     // ==========================================
     function goToRegistration() {
       document.getElementById('viewLandingPortal').classList.add('hidden');
       document.getElementById('viewExamArena').classList.add('hidden');
       document.getElementById('viewResults').classList.add('hidden');
+      document.getElementById('mobileExamDock').classList.add('hidden');
       document.getElementById('viewRegistration').classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -741,8 +793,129 @@
       document.getElementById('viewRegistration').classList.add('hidden');
       document.getElementById('viewExamArena').classList.add('hidden');
       document.getElementById('viewResults').classList.add('hidden');
+      document.getElementById('mobileExamDock').classList.add('hidden');
       document.getElementById('viewLandingPortal').classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ==========================================
+    // MULAI SESI UJIAN & SISTEM ANTI CHEAT RESPONSIF
+    // ==========================================
+    function handleStartExam(e) {
+      e.preventDefault();
+      if (!isNikVerified) {
+        showCustomDialog('Verifikasi Diperlukan', 'Silakan verifikasi NIK KTP Anda terlebih dahulu.', true);
+        return;
+      }
+      if (!candidateData.fotoBase64) {
+        showCustomDialog('Foto Presensi Diperlukan', 'Silakan ambil foto selfie presensi terlebih dahulu sebelum masuk ruang ujian.', true);
+        return;
+      }
+      if (!document.getElementById('candAgreement').checked) {
+        showCustomDialog('Pakta Integritas', 'Anda wajib mencentang persetujuan pakta integritas kejujuran ujian.', true);
+        return;
+      }
+
+      document.getElementById('viewRegistration').classList.add('hidden');
+      document.getElementById('viewLandingPortal').classList.add('hidden');
+      document.getElementById('viewExamArena').classList.remove('hidden');
+      document.getElementById('examMonitor').classList.remove('hidden');
+      document.getElementById('mobileExamDock').classList.remove('hidden');
+
+      activeModule = 1;
+      initiateModule(activeModule);
+
+      // Aktifkan pemantauan integritas fokus layar
+      setTimeout(() => {
+        isCheatTrackingActive = true;
+      }, 3000);
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 1. Deteksi Tab Hidden (Visibilitas Tab Berubah)
+    document.addEventListener('visibilitychange', function() {
+      if (!isCheatTrackingActive) return;
+      if (document.visibilityState === 'hidden') {
+        registerScreenViolation("Pindah Tab / Minimize Browser");
+      }
+    });
+
+    // 2. Deteksi Window Blur (Kursor Klik Layar Kedua / Monitor Tambahan / Aplikasi Luar)
+    window.addEventListener('blur', function() {
+      if (!isCheatTrackingActive) return;
+      registerScreenViolation("Hilang Fokus (Monitor Kedua / Aplikasi Lain)");
+    });
+
+    // 3. Pencegahan Shortcut Screenshot & Kombinasi Inspeksi
+    document.addEventListener('keydown', function(e) {
+      if (!isCheatTrackingActive) return;
+
+      // Cegah tombol PrintScreen
+      if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
+        e.preventDefault();
+        registerScreenViolation("Percobaan PrintScreen");
+        obscureScreenForCapture();
+        return false;
+      }
+
+      // Cegah shortcut Windows Screenshot (Win + Shift + S), Mac (Cmd + Shift + 3/4), Inspect (F12, Ctrl+Shift+I), Copy (Ctrl+C), View Source (Ctrl+U)
+      if (
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'C' || e.key === 'c' || e.key === 'S' || e.key === 's')) ||
+        (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 'c' || e.key === 'C')) ||
+        (e.metaKey && e.shiftKey) || // Mac screenshots
+        e.key === 'F12'
+      ) {
+        e.preventDefault();
+        registerScreenViolation("Percobaan Pintasan Shortcut / Screenshot");
+        obscureScreenForCapture();
+        return false;
+      }
+    });
+
+    // Cegah klik kanan pada area ujian
+    document.addEventListener('contextmenu', function(e) {
+      if (isCheatTrackingActive) {
+        e.preventDefault();
+      }
+    });
+
+    function registerScreenViolation(reason) {
+      // Cegah penghitungan ganda (debounce cooldown 1.5 detik)
+      if (isViolationCooldownActive) return;
+      isViolationCooldownActive = true;
+      setTimeout(() => {
+        isViolationCooldownActive = false;
+      }, 1500);
+
+      candidateData.tabViolations++;
+      
+      // Update badge monitor di header
+      const trackerEl = document.getElementById('tabSwitchCount');
+      if (trackerEl) trackerEl.textContent = candidateData.tabViolations + 'x';
+      
+      const modalCounter = document.getElementById('modalCheatCounter');
+      if (modalCounter) modalCounter.textContent = candidateData.tabViolations;
+
+      const overlayCount = document.getElementById('overlayCheatCount');
+      if (overlayCount) overlayCount.textContent = candidateData.tabViolations;
+
+      obscureScreenForCapture();
+    }
+
+    function obscureScreenForCapture() {
+      const overlay = document.getElementById('antiScreenshotOverlay');
+      if (overlay) {
+        overlay.classList.remove('hidden');
+      }
+    }
+
+    function resumeExamFocus() {
+      const overlay = document.getElementById('antiScreenshotOverlay');
+      if (overlay) {
+        overlay.classList.add('hidden');
+      }
+      window.focus();
     }
 
     function showCustomDialog(title, message, isWarning = true) {
@@ -771,11 +944,12 @@
     }
 
     // ==========================================
-    // FUNGSI KAMERA (FIX BLACK SCREEN ISSUE)
+    // FUNGSI KAMERA DENGAN FORENSIC WATERMARK
     // ==========================================
     async function initiateCameraStream() {
       const videoEl = document.getElementById('webcamVideo');
       const badgeEl = document.getElementById('cameraBadgeStatus');
+      const dotEl = document.getElementById('camStatusDot');
       const btnCapture = document.getElementById('btnCapturePhoto');
       const btnStart = document.getElementById('btnStartCamera');
       const btnStartLabel = document.getElementById('btnStartCameraLabel');
@@ -783,10 +957,8 @@
       const faceGuide = document.getElementById('faceGuideBox');
       const alertEl = document.getElementById('photoStatusAlert');
 
-      if (badgeEl) {
-        badgeEl.textContent = 'Menghubungkan Kamera...';
-        badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-700 border border-amber-200';
-      }
+      badgeEl.textContent = 'Menghubungkan Kamera...';
+      badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-700 border border-amber-200';
       if (btnStartLabel) btnStartLabel.textContent = 'Membuka Kamera...';
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -818,7 +990,7 @@
         videoEl.setAttribute('muted', '');
         videoEl.srcObject = stream;
 
-        // Buka tampilan video seketika dan sembunyikan kotak hitam penutup
+        // Buka tampilan video seketika
         videoEl.classList.remove('hidden');
         if (standbyNotice) standbyNotice.classList.add('hidden');
         if (faceGuide) faceGuide.classList.remove('hidden');
@@ -830,30 +1002,29 @@
           videoEl.play();
         }
 
-        if (badgeEl) {
-          badgeEl.textContent = 'Kamera Aktif (Live)';
-          badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        badgeEl.textContent = 'Kamera Aktif (Live)';
+        badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        if (dotEl) {
+          dotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping';
         }
         
         if (btnCapture) btnCapture.disabled = false;
         if (btnStart) btnStart.classList.add('hidden');
         
         if (alertEl) {
-          alertEl.textContent = 'Wajah terdeteksi di layar. Posisikan di dalam oval lalu klik "Jepret Foto Wajah".';
+          alertEl.textContent = '✓ Live feed terhubung. Posisikan wajah di dalam oval lalu klik "Jepret Foto Wajah".';
           alertEl.className = 'text-center text-[11px] font-bold text-emerald-700';
         }
 
       } catch (err) {
         console.error('Gagal mengakses kamera live:', err);
-        if (badgeEl) {
-          badgeEl.textContent = 'Izin Kamera Ditolak / Dibatasi';
-          badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-red-50 text-red-700 border border-red-200';
-        }
+        badgeEl.textContent = 'Izin Kamera Ditolak';
+        badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-red-50 text-red-700 border border-red-200';
         if (btnStartLabel) btnStartLabel.textContent = 'Coba Nyalakan Lagi';
 
         showCustomDialog(
           'Izin Kamera Diblokir Browser',
-          'Browser tidak mengizinkan akses kamera.<br><br><strong>Solusi:</strong><br>1. Klik ikon perizinan/gembok di bilah alamat browser.<br>2. Izinkan (Allow) akses <strong>Kamera</strong>.<br>3. Muat ulang halaman lalu coba kembali.',
+          'Browser tidak mengizinkan akses kamera.<br><br><strong>Solusi:</strong><br>1. Klik ikon perizinan/gembok di bilah alamat atas browser.<br>2. Izinkan (Allow) akses <strong>Kamera</strong>.<br>3. Muat ulang halaman lalu coba kembali.',
           true
         );
       }
@@ -869,6 +1040,7 @@
       const btnStart = document.getElementById('btnStartExam');
       const alertEl = document.getElementById('photoStatusAlert');
       const badgeEl = document.getElementById('cameraBadgeStatus');
+      const dotEl = document.getElementById('camStatusDot');
 
       const width = videoEl.videoWidth || 320;
       const height = videoEl.videoHeight || 320;
@@ -887,7 +1059,32 @@
       const sy = (height - minDim) / 2;
       ctx.drawImage(videoEl, sx, sy, minDim, minDim, 0, 0, 320, 320);
 
-      candidateData.fotoBase64 = canvasEl.toDataURL('image/jpeg', 0.65);
+      // Kembalikan transformasi sebelum burning watermark
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+      // WATERMARK FORENSIK PRESENSI
+      const now = new Date();
+      const timeStr = now.getFullYear() + '-' +
+        String(now.getMonth() + 1).padStart(2, '0') + '-' +
+        String(now.getDate()).padStart(2, '0') + ' ' +
+        String(now.getHours()).padStart(2, '0') + ':' +
+        String(now.getMinutes()).padStart(2, '0') + ':' +
+        String(now.getSeconds()).padStart(2, '0');
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.fillRect(0, 275, 320, 45);
+
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = 'bold 9px monospace';
+      ctx.fillText('PT KTC COAL MINING & ENERGY', 8, 290);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '8px monospace';
+      const shortName = candidateData.nama ? candidateData.nama.slice(0, 16) : 'CANDIDATE';
+      ctx.fillText(candidateData.nik + ' | ' + shortName, 8, 301);
+      ctx.fillText(timeStr + ' WIB', 8, 312);
+
+      candidateData.fotoBase64 = canvasEl.toDataURL('image/jpeg', 0.70);
 
       previewImg.src = candidateData.fotoBase64;
       previewImg.classList.remove('hidden');
@@ -897,12 +1094,14 @@
       if (btnCapture) btnCapture.classList.add('hidden');
       if (btnRetake) btnRetake.classList.remove('hidden');
 
-      if (badgeEl) {
-        badgeEl.textContent = 'Foto Presensi Terkunci';
-        badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+      badgeEl.textContent = 'Foto Presensi Terkunci';
+      badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+      if (dotEl) {
+        dotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-600';
       }
+
       if (alertEl) {
-        alertEl.textContent = '✓ Foto presensi berhasil diambil langsung dari kamera live. Silakan mulai sesi ujian.';
+        alertEl.textContent = '✓ Foto presensi resmi berhasil diverifikasi & dibubuhi cap waktu. Silakan masuk ke ruang ujian.';
         alertEl.className = 'text-center text-[11px] font-bold text-emerald-700';
       }
 
@@ -990,13 +1189,13 @@
 
               statusBox.className = 'p-3.5 rounded-xl border border-red-200 bg-red-50 text-red-700 text-xs space-y-2';
               statusBox.innerHTML = '<p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation text-red-600"></i> Gagal Terhubung ke Server Database</p>' +
-                '<p class="text-[11px] leading-relaxed">Browser gagal menghubungi Apps Script. Pastikan URL Deployment sudah dipasang di baris kode script dan izin deployment disetel ke "Anyone".</p>';
+                '<p class="text-[11px] leading-relaxed">Browser gagal menghubungi Apps Script. Pastikan URL Deployment sudah sesuai dan izin deployment disetel ke "Anyone".</p>';
 
               showCustomDialog(
                 'Koneksi Database Terputus',
                 'Sistem tidak dapat menghubungi endpoint Google Apps Script.<br><br>' +
                 '<strong>Langkah Pemeriksaan:</strong><br>' +
-                '1. Pastikan URL pada variabel <code>GOOGLE_SCRIPT_WEBHOOK_URL</code> di baris kode HTML sudah sesuai.<br>' +
+                '1. Pastikan URL pada variabel <code>GOOGLE_SCRIPT_WEBHOOK_URL</code> di baris kode sudah benar.<br>' +
                 '2. Pastikan izin deployment Google Apps Script adalah <strong>Who has access: Anyone</strong>.',
                 true
               );
@@ -1113,50 +1312,6 @@
     }
 
     // ==========================================
-    // MULAI SESI UJIAN & SISTEM ANTI CHEAT
-    // ==========================================
-    function handleStartExam(e) {
-      e.preventDefault();
-      if (!isNikVerified) {
-        showCustomDialog('Verifikasi Diperlukan', 'Silakan verifikasi NIK KTP Anda terlebih dahulu.', true);
-        return;
-      }
-      if (!candidateData.fotoBase64) {
-        showCustomDialog('Foto Presensi Diperlukan', 'Silakan ambil foto selfie presensi terlebih dahulu sebelum masuk ruang ujian.', true);
-        return;
-      }
-      if (!document.getElementById('candAgreement').checked) {
-        showCustomDialog('Pakta Integritas', 'Anda wajib mencentang persetujuan pakta integritas kejujuran ujian.', true);
-        return;
-      }
-
-      document.getElementById('viewRegistration').classList.add('hidden');
-      document.getElementById('viewLandingPortal').classList.add('hidden');
-      document.getElementById('viewExamArena').classList.remove('hidden');
-      document.getElementById('examMonitor').classList.remove('hidden');
-
-      activeModule = 1;
-      initiateModule(activeModule);
-
-      setTimeout(() => {
-        isCheatTrackingActive = true;
-      }, 5000);
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    document.addEventListener('visibilitychange', function() {
-      if (!isCheatTrackingActive) return;
-
-      if (document.visibilityState === 'hidden') {
-        candidateData.tabViolations++;
-        document.getElementById('tabSwitchCount').textContent = candidateData.tabViolations + 'x';
-        document.getElementById('modalCheatCounter').textContent = candidateData.tabViolations;
-        document.getElementById('cheatWarningModal').classList.remove('hidden');
-      }
-    });
-
-    // ==========================================
     // PENGATURAN MODUL & TIMER
     // ==========================================
     function initiateModule(modNum) {
@@ -1169,7 +1324,10 @@
       updateModuleAnsweredCounter();
 
       document.getElementById('activeModuleIndicator').textContent = 'Modul ' + modNum + ' dari 6';
-      document.getElementById('btnFooterSubmitLabel').textContent = 'SELESAIKAN & KUNCI JAWABAN MODUL ' + modNum;
+      const submitLabel = modNum === 6 
+        ? 'SELESAIKAN MODUL 6 & KUNCI SELURUH EVALUASI' 
+        : 'SELESAIKAN MODUL ' + modNum + ' & LANJUT KE TAHAP BERIKUTNYA';
+      document.getElementById('btnFooterSubmitLabel').textContent = submitLabel;
 
       if (examTimerInterval) clearInterval(examTimerInterval);
       updateTimerDisplay();
@@ -1188,7 +1346,22 @@
       const minutes = Math.floor(currentModuleSecondsLeft / 60);
       const seconds = currentModuleSecondsLeft % 60;
       const formatted = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-      document.getElementById('timerDisplay').textContent = formatted;
+      const displayEl = document.getElementById('timerDisplay');
+      const containerEl = document.getElementById('timerContainer');
+      const iconEl = document.getElementById('timerIcon');
+
+      displayEl.textContent = formatted;
+
+      // Peringatan visual halus di bawah 2 menit
+      if (currentModuleSecondsLeft <= 120) {
+        containerEl.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl bg-red-950 border border-red-700 text-red-300 shadow-inner pulse-soft';
+        displayEl.className = 'font-mono-code font-black text-sm sm:text-base tracking-wider text-red-400';
+        iconEl.className = 'fa-solid fa-triangle-exclamation text-sm text-red-400 animate-bounce';
+      } else {
+        containerEl.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-400 shadow-inner';
+        displayEl.className = 'font-mono-code font-black text-sm sm:text-base tracking-wider text-amber-400';
+        iconEl.className = 'fa-solid fa-stopwatch text-sm text-amber-400 animate-pulse';
+      }
     }
 
     function autoLockCurrentModule() {
@@ -1238,6 +1411,7 @@
       if (examTimerInterval) clearInterval(examTimerInterval);
 
       document.getElementById('examMonitor').classList.add('hidden');
+      document.getElementById('mobileExamDock').classList.add('hidden');
       document.getElementById('viewExamArena').classList.add('hidden');
       document.getElementById('viewResults').classList.remove('hidden');
 
@@ -1356,13 +1530,13 @@
 
         syncStatusIcon.className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg shrink-0 border border-emerald-200';
         syncStatusIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-        syncStatusTitle.textContent = 'Data & Foto Berhasil Tersimpan ke Database';
-        syncStatusSubtitle.textContent = 'Seluruh lembar respon dan foto presensi telah tercatat resmi di database panitia seleksi.';
+        syncStatusTitle.textContent = 'Data & Foto Berhasil Tercatat di Pusat Data Rekrutmen';
+        syncStatusSubtitle.textContent = 'Seluruh lembar respon dan foto presensi resmi telah terenkripsi dan tersimpan di Basis Data Asesmen PT KTC.';
       } catch (err) {
-        console.warn('Pengiriman background payload selesai:', err);
+        console.warn('Pengiriman background payload terselesaikan.', err);
         syncStatusIcon.className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg shrink-0 border border-emerald-200';
         syncStatusIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-        syncStatusTitle.textContent = 'Data Terkunci di Browser Klien';
+        syncStatusTitle.textContent = 'Data Terkunci di Sistem Basis Data Klien';
         syncStatusSubtitle.textContent = 'Tanda terima resmi telah dibuat. Anda dipersilakan menutup jendela halaman ujian ini.';
       }
     }
@@ -1408,6 +1582,13 @@
       updateModuleAnsweredCounter();
     }
 
+    function toggleFlagQuestion(idx) {
+      const qKey = 'm' + activeModule + '_' + idx;
+      candidateData.flagged[qKey] = !candidateData.flagged[qKey];
+      renderCurrentModuleContent(activeModule);
+      renderQuestionGridPalette(activeModule);
+    }
+
     function getTotalQuestionsInModule(modNum) {
       if (modNum === 1) return rawModul1.length;
       if (modNum === 2) return rawModul2.length;
@@ -1436,6 +1617,9 @@
       document.getElementById('moduleAnsweredCount').textContent = answered + '/' + total;
       document.getElementById('modulePercentageCount').textContent = percent + '%';
       document.getElementById('examProgressBar').style.width = percent + '%';
+      
+      const dockCounter = document.getElementById('dockCounter');
+      if (dockCounter) dockCounter.textContent = answered + '/' + total;
     }
 
     function updateStepBadges() {
@@ -1462,12 +1646,20 @@
       let html = '';
 
       for (let i = 0; i < total; i++) {
-        const isAnswered = candidateData.answers[prefix + i] !== undefined;
-        const colorClass = isAnswered 
-          ? 'bg-emerald-600 text-white font-bold border-emerald-600 shadow-sm' 
-          : 'bg-slate-50 text-slate-600 font-semibold border-slate-200 hover:bg-slate-100 hover:text-slate-900';
+        const qKey = prefix + i;
+        const isAnswered = candidateData.answers[qKey] !== undefined;
+        const isFlagged = candidateData.flagged[qKey] === true;
 
-        html += '<button type="button" onclick="scrollToQuestion(' + i + ')" class="h-8 rounded-lg text-xs flex items-center justify-center border transition ' + colorClass + '">' +
+        let colorClass = '';
+        if (isFlagged) {
+          colorClass = 'bg-amber-400 text-slate-950 font-black border-amber-500 shadow-sm ring-1 ring-amber-400';
+        } else if (isAnswered) {
+          colorClass = 'bg-emerald-600 text-white font-bold border-emerald-600 shadow-sm';
+        } else {
+          colorClass = 'bg-slate-50 text-slate-600 font-semibold border-slate-200 hover:bg-slate-100 hover:text-slate-900';
+        }
+
+        html += '<button type="button" onclick="scrollToQuestion(' + i + ')" class="min-w-[42px] h-10 rounded-xl text-xs flex items-center justify-center border transition font-mono-code active:scale-95 ' + colorClass + '">' +
           (i + 1) +
           '</button>';
       }
@@ -2194,15 +2386,20 @@
         rawModul1.forEach((item, idx) => {
           const qId = 'm1_' + idx;
           const currentAns = candidateData.answers[qId];
+          const isFlagged = candidateData.flagged[qId] === true;
           const isSameActive = currentAns === true;
           const isDiffActive = currentAns === false;
 
           const sameBtnClass = isSameActive ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-500' : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50';
           const diffBtnClass = isDiffActive ? 'bg-amber-600 text-white shadow-sm ring-2 ring-amber-500' : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50';
+          const flagBtnClass = isFlagged ? 'bg-amber-100 text-amber-800 border-amber-300 font-bold' : 'bg-slate-100 text-slate-400 hover:text-amber-600 border-slate-200';
 
           html += '<div id="qcard_1_' + idx + '" class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/70 hover:border-slate-300 transition flex flex-col md:flex-row md:items-center justify-between gap-3">' +
             '<div class="flex items-center gap-3">' +
-            '<span class="w-7 h-7 rounded-lg bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">#' + (idx + 1) + '</span>' +
+            '<button type="button" onclick="toggleFlagQuestion(' + idx + ')" title="Tandai Ragu-ragu" class="w-8 h-8 rounded-xl border flex items-center justify-center transition ' + flagBtnClass + '">' +
+            '<i class="fa-solid fa-bookmark text-xs"></i>' +
+            '</button>' +
+            '<span class="w-7 h-7 rounded-lg bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 font-mono-code">#' + (idx + 1) + '</span>' +
             '<div class="font-mono-code text-xs sm:text-sm tracking-wide bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 space-x-2 shadow-xs">' +
             '<span class="font-extrabold text-slate-900">' + item[0] + '</span>' +
             '<span class="text-slate-400 font-sans font-semibold">vs</span>' +
@@ -2234,11 +2431,18 @@
         rawModul2.forEach((item, idx) => {
           const qId = 'm2_' + idx;
           const selectedScore = candidateData.answers[qId];
+          const isFlagged = candidateData.flagged[qId] === true;
+          const flagBtnClass = isFlagged ? 'bg-amber-100 text-amber-800 border-amber-300 font-bold' : 'bg-slate-100 text-slate-400 hover:text-amber-600 border-slate-200';
 
           html += '<div id="qcard_2_' + idx + '" class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3">' +
+            '<div class="flex items-start justify-between gap-2.5">' +
             '<div class="flex items-start gap-2.5">' +
-            '<span class="shrink-0 w-7 h-7 rounded-lg bg-blue-100 text-blue-800 text-xs font-bold flex items-center justify-center border border-blue-200">#' + (idx + 1) + '</span>' +
+            '<span class="shrink-0 w-7 h-7 rounded-lg bg-blue-100 text-blue-800 text-xs font-bold flex items-center justify-center border border-blue-200 font-mono-code">#' + (idx + 1) + '</span>' +
             '<p class="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">' + item.q + '</p>' +
+            '</div>' +
+            '<button type="button" onclick="toggleFlagQuestion(' + idx + ')" title="Tandai Ragu-ragu" class="shrink-0 w-8 h-8 rounded-xl border flex items-center justify-center transition ' + flagBtnClass + '">' +
+            '<i class="fa-solid fa-bookmark text-xs"></i>' +
+            '</button>' +
             '</div>' +
             '<div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/80">';
 
@@ -2269,6 +2473,8 @@
         rawModul3.forEach((item, idx) => {
           const qId = 'm3_' + idx;
           const selectedOpt = candidateData.answers[qId];
+          const isFlagged = candidateData.flagged[qId] === true;
+          const flagBtnClass = isFlagged ? 'bg-amber-100 text-amber-800 border-amber-300 font-bold' : 'bg-slate-100 text-slate-400 hover:text-amber-600 border-slate-200';
 
           const aCardClass = selectedOpt === 'A' ? 'bg-amber-50 border-amber-500 text-slate-900 font-bold ring-1 ring-amber-500 shadow-xs' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300';
           const aBadgeClass = selectedOpt === 'A' ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-100 text-slate-700 border border-slate-200';
@@ -2278,8 +2484,13 @@
 
           html += '<div id="qcard_3_' + idx + '" class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3">' +
             '<div class="flex items-center justify-between">' +
-            '<span class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 text-xs font-bold">Pasangan Butir #' + (idx + 1) + '</span>' +
-            '<span class="text-[11px] text-slate-400 font-semibold">Pilih salah satu (A atau B)</span>' +
+            '<div class="flex items-center gap-2">' +
+            '<span class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 text-xs font-bold font-mono-code">Pasangan Butir #' + (idx + 1) + '</span>' +
+            '<span class="text-[11px] text-slate-400 font-semibold hidden sm:inline">Pilih salah satu (A atau B)</span>' +
+            '</div>' +
+            '<button type="button" onclick="toggleFlagQuestion(' + idx + ')" title="Tandai Ragu-ragu" class="w-8 h-8 rounded-xl border flex items-center justify-center transition ' + flagBtnClass + '">' +
+            '<i class="fa-solid fa-bookmark text-xs"></i>' +
+            '</button>' +
             '</div>' +
             '<div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">' +
             '<div onclick="recordForcedChoiceAnswer(' + idx + ', \'A\')" class="p-4 rounded-xl border cursor-pointer transition text-xs sm:text-sm flex items-start gap-3 ' + aCardClass + '">' +
@@ -2308,11 +2519,18 @@
         rawModul4.forEach((item, idx) => {
           const qId = 'm4_' + idx;
           const selectedScore = candidateData.answers[qId];
+          const isFlagged = candidateData.flagged[qId] === true;
+          const flagBtnClass = isFlagged ? 'bg-amber-100 text-amber-800 border-amber-300 font-bold' : 'bg-slate-100 text-slate-400 hover:text-amber-600 border-slate-200';
 
           html += '<div id="qcard_4_' + idx + '" class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3">' +
+            '<div class="flex items-start justify-between gap-2.5">' +
             '<div class="flex items-start gap-2.5">' +
-            '<span class="shrink-0 w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center justify-center border border-emerald-200">#' + (idx + 1) + '</span>' +
+            '<span class="shrink-0 w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center justify-center border border-emerald-200 font-mono-code">#' + (idx + 1) + '</span>' +
             '<p class="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">' + item.q + '</p>' +
+            '</div>' +
+            '<button type="button" onclick="toggleFlagQuestion(' + idx + ')" title="Tandai Ragu-ragu" class="shrink-0 w-8 h-8 rounded-xl border flex items-center justify-center transition ' + flagBtnClass + '">' +
+            '<i class="fa-solid fa-bookmark text-xs"></i>' +
+            '</button>' +
             '</div>' +
             '<div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/80">';
 
@@ -2343,10 +2561,13 @@
         rawModul5.forEach((item, idx) => {
           const qId = 'm5_' + idx;
           const selectedOptIdx = candidateData.answers[qId];
+          const isFlagged = candidateData.flagged[qId] === true;
+          const flagBtnClass = isFlagged ? 'bg-amber-100 text-amber-800 border-amber-300 font-bold' : 'bg-slate-100 text-slate-400 hover:text-amber-600 border-slate-200';
 
           html += '<div id="qcard_5_' + idx + '" class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3">' +
-            '<div class="flex items-start gap-2.5">' +
-            '<span class="shrink-0 w-7 h-7 rounded-lg bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center border border-slate-300">#' + (idx + 1) + '</span>' +
+            '<div class="flex items-start justify-between gap-2.5">' +
+            '<div class="flex items-start gap-2.5 flex-1">' +
+            '<span class="shrink-0 w-7 h-7 rounded-lg bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center border border-slate-300 font-mono-code">#' + (idx + 1) + '</span>' +
             '<div class="space-y-2.5 flex-1">' +
             '<p class="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">' + item.q + '</p>';
 
@@ -2365,7 +2586,12 @@
             html += '</tbody></table></div>';
           }
 
-          html += '</div></div><div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/80">';
+          html += '</div></div>' +
+            '<button type="button" onclick="toggleFlagQuestion(' + idx + ')" title="Tandai Ragu-ragu" class="shrink-0 w-8 h-8 rounded-xl border flex items-center justify-center transition ' + flagBtnClass + '">' +
+            '<i class="fa-solid fa-bookmark text-xs"></i>' +
+            '</button>' +
+            '</div>' +
+            '<div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/80">';
 
           item.opts.forEach((opt, origIdx) => {
             const isChecked = selectedOptIdx === origIdx;
@@ -2395,11 +2621,18 @@
         roleData.forEach((item, idx) => {
           const qId = 'm6_' + idx;
           const selectedOptIdx = candidateData.answers[qId];
+          const isFlagged = candidateData.flagged[qId] === true;
+          const flagBtnClass = isFlagged ? 'bg-amber-100 text-amber-800 border-amber-300 font-bold' : 'bg-slate-100 text-slate-400 hover:text-amber-600 border-slate-200';
 
           html += '<div id="qcard_6_' + idx + '" class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3">' +
+            '<div class="flex items-start justify-between gap-2.5">' +
             '<div class="flex items-start gap-2.5">' +
-            '<span class="shrink-0 w-7 h-7 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold flex items-center justify-center border border-amber-200">#' + (idx + 1) + '</span>' +
+            '<span class="shrink-0 w-7 h-7 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold flex items-center justify-center border border-amber-200 font-mono-code">#' + (idx + 1) + '</span>' +
             '<p class="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">' + item.q + '</p>' +
+            '</div>' +
+            '<button type="button" onclick="toggleFlagQuestion(' + idx + ')" title="Tandai Ragu-ragu" class="shrink-0 w-8 h-8 rounded-xl border flex items-center justify-center transition ' + flagBtnClass + '">' +
+            '<i class="fa-solid fa-bookmark text-xs"></i>' +
+            '</button>' +
             '</div>' +
             '<div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/80">';
 
