@@ -4,15 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Portal Ujian Seleksi Online - PT KTC Coal Mining &amp; Energy</title>
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
+  
+  <!-- FontAwesome 6 CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Google Fonts -->
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  
+
+  <script>
+    // Tangani dan redam Script error generik lintas domain dari tag skrip dinamis
+    window.addEventListener('error', function(e) {
+      if (e.message === 'Script error.' || (e.target && e.target.tagName === 'SCRIPT')) {
+        console.warn('Terdeteksi peringatan lintas domain (script error) yang diredam:', e);
+        e.preventDefault();
+        return true;
+      }
+    }, true);
+  </script>
+
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
     .font-mono-code { font-family: 'JetBrains Mono', monospace; }
@@ -27,25 +41,26 @@
       user-select: none;
     }
     html { scroll-behavior: smooth; }
-    .animate-pulse-slow {
-      animation: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
     @keyframes pulseSoft {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+      50% { opacity: 0.45; }
     }
-    .pulse-soft {
-      animation: pulseSoft 1.5s infinite;
-    }
+    .pulse-soft { animation: pulseSoft 1.5s infinite; }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-amber-400 selection:text-slate-950 exam-unselectable">
 
-  <!-- Top Navigation & Floating Exam Monitor -->
-  <header class="bg-white/95 backdrop-blur-md text-slate-900 border-b border-slate-200 shadow-sm sticky top-0 z-40">
+  <!-- ========================================== -->
+  <!-- HEADER & FLOATING EXAM MONITOR             -->
+  <!-- ========================================== -->
+  <header class="bg-white/95 backdrop-blur-md text-slate-900 border-b border-slate-200 shadow-xs sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      
+      <!-- Brand Identitas Perusahaan -->
       <div class="flex items-center gap-3">
-        <img src="logo-ktc.png" alt="Logo PT KTC" class="h-10 w-auto object-contain">
+        <div class="h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xl shadow-xs shrink-0 ring-2 ring-amber-400/30">
+          <i class="fa-solid fa-helmet-safety text-lg"></i>
+        </div>
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-sm sm:text-base font-black text-slate-900 tracking-wide uppercase">PT. KTC COAL MINING &amp; ENERGY</h1>
@@ -55,9 +70,10 @@
         </div>
       </div>
 
-      <!-- Live Monitoring Widget (Hanya Tampil Saat Ujian Berjalan) -->
+      <!-- Live Monitoring Widget (Hanya Aktif Saat Ujian Berjalan) -->
       <div id="examMonitor" class="hidden flex flex-wrap items-center gap-2 sm:gap-3 self-end md:self-auto">
-        <!-- Anti Cheat Violation Tracker -->
+        
+        <!-- Catatan Integritas Sesi -->
         <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold shadow-xs">
           <i class="fa-solid fa-shield-halved text-red-500"></i>
           <span class="hidden sm:inline">Catatan Integritas Sesi:</span>
@@ -65,23 +81,26 @@
           <span id="tabSwitchCount" class="font-bold text-white px-1.5 py-0.5 bg-red-600 rounded">0x</span>
         </div>
 
-        <!-- Module Countdown Timer (Adaptive Alert Colors) -->
+        <!-- Timer Hitung Mundur Adaptif -->
         <div id="timerContainer" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-400 shadow-inner transition-colors duration-300">
           <i id="timerIcon" class="fa-solid fa-stopwatch text-sm animate-pulse"></i>
-          <span class="text-xs font-bold text-slate-300 hidden sm:inline" id="timerLabel">Sisa Waktu:</span>
+          <span class="text-xs font-bold text-slate-300 hidden sm:inline">Sisa Waktu:</span>
           <span id="timerDisplay" class="font-mono-code font-black text-sm sm:text-base tracking-wider text-amber-400">18:00</span>
         </div>
 
-        <!-- Tombol Selesai Cepat Modul Berjalan -->
-        <button id="btnSubmitCurrentModule" onclick="confirmSubmitCurrentModule()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+        <!-- Tombol Selesai Cepat Modul -->
+        <button id="btnSubmitCurrentModule" onclick="confirmSubmitCurrentModule()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95">
           <i class="fa-solid fa-lock text-[11px]"></i>
-          <span id="btnSubmitModuleLabel">Simpan &amp; Kunci Jawaban Modul</span>
+          <span>Simpan &amp; Kunci Jawaban Modul</span>
         </button>
       </div>
+
     </div>
   </header>
 
-  <!-- Overlay Proteksi Anti-Screenshot / Multi-Monitor Blur -->
+  <!-- ========================================== -->
+  <!-- OVERLAY ANTI-SCREENSHOT & BLUR OBFUSCATION -->
+  <!-- ========================================== -->
   <div id="antiScreenshotOverlay" class="hidden fixed inset-0 z-[9990] bg-slate-950/90 backdrop-blur-3xl flex flex-col items-center justify-center p-6 text-center text-white space-y-4">
     <div class="w-16 h-16 rounded-2xl bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center text-3xl animate-pulse">
       <i class="fa-solid fa-eye-slash"></i>
@@ -89,7 +108,7 @@
     <div class="max-w-md space-y-2">
       <h3 class="text-xl font-black text-white">Peringatan: Jendela Asesmen Kehilangan Fokus Aktif</h3>
       <p class="text-xs text-slate-300 leading-relaxed">
-        Sistem mendeteksi aktivitas di luar lembar evaluasi (seperti perpindahan kursor ke monitor kedua, meminimalkan jendela, atau percobaan tangkapan layar). Seluruh catatan penyimpangan fokus terekam secara otomatis dalam Lembar Audit Integritas Tim Asesor PT KTC.
+        Sistem mendeteksi aktivitas di luar lembar evaluasi (seperti membuka jendela lain, memindahkan kursor ke monitor kedua, atau percobaan tangkapan layar). Seluruh catatan penyimpangan fokus terekam secara otomatis dalam Lembar Audit Integritas Tim Asesor PT KTC.
       </p>
     </div>
     <div class="p-3 bg-red-950/60 border border-red-800/80 rounded-xl text-xs font-mono-code text-red-300">
@@ -101,13 +120,17 @@
     </button>
   </div>
 
-  <!-- Container Konten Aplikasi -->
+  <!-- ========================================== -->
+  <!-- KONTEN UTAMA APLIKASI                      -->
+  <!-- ========================================== -->
   <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 flex-1 w-full space-y-6">
 
-    <!-- VIEW LANDING: TAMPILAN PORTAL UTAMA -->
+    <!-- ---------------------------------------- -->
+    <!-- VIEW LANDING: INFORMASI & TATA TERTIB    -->
+    <!-- ---------------------------------------- -->
     <div id="viewLandingPortal" class="space-y-6">
       
-      <!-- Hero Banner Perusahaan & Pengumuman Seleksi -->
+      <!-- Hero Banner -->
       <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 border border-slate-800 text-white p-6 sm:p-10 shadow-xl">
         <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-amber-500/15 blur-3xl pointer-events-none"></div>
         <div class="absolute right-1/4 -bottom-20 w-64 h-64 rounded-full bg-blue-500/15 blur-3xl pointer-events-none"></div>
@@ -115,7 +138,7 @@
         <div class="relative z-10 max-w-3xl space-y-4">
           <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold tracking-wide">
             <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-            <span>PORTAL ASESMEN RESMI PLANT &amp; SUPPORT DEPARTMENT</span>
+            <span>PORTAL ASESMEN RESMI PLANT &amp; LOGISTIC DEPARTMENT</span>
           </div>
 
           <h2 class="text-2xl sm:text-4xl font-black text-white leading-tight tracking-tight">
@@ -123,7 +146,7 @@
           </h2>
 
           <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Selamat datang di Portal Evaluasi Terpadu PT KTC Coal Mining &amp; Energy Site Muara Teweh. Seluruh butir evaluasi dirancang objektif untuk menguji kesiapan operasional lapangan, pemahaman teknis formasi, kalkulasi logistik, serta integritas kerja site tambang.
+            Selamat datang di Portal Evaluasi Terpadu PT KTC Coal Mining &amp; Energy Site Muara Teweh. Sistem asesmen ini mengunci 4 formasi kunci operasional: <strong>Admin Workshop</strong>, <strong>Admin Warehouse</strong>, <strong>Storeman</strong>, dan <strong>Fuelman</strong> untuk memastikan kesiapan kerja, ketelitian visual, kalkulasi data, serta kepatuhan standar K3 tambang.
           </p>
 
           <div class="pt-2 flex flex-wrap items-center gap-3">
@@ -141,7 +164,7 @@
 
       <!-- Quick Metrics Bar -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">
           <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg shrink-0 border border-amber-200">
             <i class="fa-solid fa-stopwatch"></i>
           </div>
@@ -151,7 +174,7 @@
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">
           <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shrink-0 border border-blue-200">
             <i class="fa-solid fa-list-check"></i>
           </div>
@@ -161,7 +184,7 @@
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">
           <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shrink-0 border border-emerald-200">
             <i class="fa-solid fa-shield-heart"></i>
           </div>
@@ -171,28 +194,28 @@
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">
           <div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg shrink-0 border border-purple-200">
             <i class="fa-solid fa-code-fork"></i>
           </div>
           <div>
-            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Formasi Dinamis</p>
-            <p class="text-base sm:text-lg font-black text-purple-700 font-mono-code">Sesuai Posisi</p>
+            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">4 Formasi Kunci</p>
+            <p class="text-base sm:text-lg font-black text-purple-700 font-mono-code">Terkunci Presisi</p>
           </div>
         </div>
       </div>
 
-      <!-- Ringkasan 6 Modul Ujian -->
-      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+      <!-- Ringkasan 6 Modul Asesmen -->
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-5">
         <div class="border-b border-slate-100 pb-4">
           <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
-            <i class="fa-solid fa-cubes-stacked text-amber-500"></i> Alur 6 Sesi Asesmen &amp; Panduan Teknis (Total: 120 Menit)
+            <i class="fa-solid fa-cubes-stacked text-amber-500"></i> Alur 6 Sesi Asesmen &amp; Alokasi Waktu (Total: 120 Menit)
           </h3>
           <p class="text-xs text-slate-500 mt-0.5">Sistem evaluasi otomatis terkunci mandiri saat batas waktu setiap modul berakhir.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 hover:border-slate-300 transition space-y-2">
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">Sesi 1 &bull; 50 Soal</span>
               <span class="text-xs font-bold text-amber-600 font-mono-code">18 Menit</span>
@@ -201,7 +224,7 @@
             <p class="text-xs text-slate-600 leading-relaxed">Periksa kode pada Kolom A dan B secara cermat. Tekan <strong>SAMA</strong> jika identik persis, atau <strong>BERBEDA</strong> jika terdapat selisih huruf, angka, atau spasi.</p>
           </div>
 
-          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 hover:border-slate-300 transition space-y-2">
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-300">Sesi 2 &bull; 20 Skenario</span>
               <span class="text-xs font-bold text-blue-600 font-mono-code">15 Menit</span>
@@ -210,7 +233,7 @@
             <p class="text-xs text-slate-600 leading-relaxed">Bacalah skenario situasi friksi kerja site. Pilihlah satu tindakan yang paling mencerminkan respon spontan yang benar-benar akan Anda lakukan.</p>
           </div>
 
-          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 hover:border-slate-300 transition space-y-2">
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-300">Sesi 3 &bull; 20 Pasang</span>
               <span class="text-xs font-bold text-purple-600 font-mono-code">20 Menit</span>
@@ -219,7 +242,7 @@
             <p class="text-xs text-slate-600 leading-relaxed">Disajikan dua opsi positif (A dan B). Anda diwajibkan memilih salah satu (A atau B) yang paling mendekati kebiasaan kerja Anda sehari-hari.</p>
           </div>
 
-          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 hover:border-slate-300 transition space-y-2">
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">Sesi 4 &bull; 15 Kasus</span>
               <span class="text-xs font-bold text-emerald-600 font-mono-code">23 Menit</span>
@@ -228,7 +251,7 @@
             <p class="text-xs text-slate-600 leading-relaxed">Teliti kasus operasional dan integritas tambang. Tentukan satu langkah penyelesaian terbaik yang paling tepat dan patuh pada SOP standar.</p>
           </div>
 
-          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 hover:border-slate-300 transition space-y-2">
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-slate-200 text-slate-700 border border-slate-300">Sesi 5 &bull; 15 Soal</span>
               <span class="text-xs font-bold text-slate-700 font-mono-code">22 Menit</span>
@@ -237,19 +260,19 @@
             <p class="text-xs text-slate-600 leading-relaxed">Kerjakan soal pilihan ganda mengenai formula spreadsheet, konversi drum/rol, dan perhitungan mutasi stok logistik secara presisi.</p>
           </div>
 
-          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 hover:border-slate-300 transition space-y-2">
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300 font-bold">Sesi 6 &bull; 15 Soal</span>
               <span class="text-xs font-black text-amber-600 font-mono-code">20 Menit</span>
             </div>
-            <h4 class="text-sm font-bold text-slate-900">Penyelesaian Kasus Tugas Formasi</h4>
-            <p class="text-xs text-slate-600 leading-relaxed">Soal ditampilkan otomatis sesuai formasi jabatan Anda di berkas pelamar (Workshop / Warehouse / Storeman) dengan solusi teknis lapangan.</p>
+            <h4 class="text-sm font-bold text-slate-900">Penyelesaian Kasus Formasi Khusus</h4>
+            <p class="text-xs text-slate-600 leading-relaxed">Disajikan khusus sesuai posisi berkas: Admin Workshop, Admin Warehouse, Storeman, atau Fuelman dengan skenario teknis riil.</p>
           </div>
         </div>
       </div>
 
-      <!-- Tata Tertib & Ketentuan Asesmen -->
-      <div id="portalTataTertib" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
+      <!-- Tata Tertib & Ketentuan Pengawasan -->
+      <div id="portalTataTertib" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-4">
         <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
           <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Tata Tertib &amp; Sistem Pengawasan Daring
         </h3>
@@ -260,9 +283,9 @@
               <i class="fa-solid fa-laptop text-blue-600"></i> 1. Pengawasan Integritas Jendela Browser
             </p>
             <ul class="list-disc list-inside space-y-1 text-slate-600">
-              <li>Peserta wajib menjaga fokus layar pada halaman ujian.</li>
-              <li>Sistem mencatat setiap aktivitas perpindahan tab atau membuka aplikasi lain sebagai catatan integritas.</li>
-              <li>Rekaman aktivitas dilaporkan otomatis ke database panitia seleksi.</li>
+              <li>Peserta wajib menjaga fokus layar penuh pada jendela ujian.</li>
+              <li>Sistem mencatat secara otomatis setiap aktivitas perpindahan tab, aplikasi luar, atau monitor sekunder.</li>
+              <li>Seluruh rekaman audit dilaporkan langsung ke panitia rekrutmen PT KTC.</li>
             </ul>
           </div>
 
@@ -271,9 +294,9 @@
               <i class="fa-solid fa-clock text-amber-600"></i> 2. Mekanisme Waktu &amp; Auto-Lock
             </p>
             <ul class="list-disc list-inside space-y-1 text-slate-600">
-              <li>Setiap modul memiliki batas waktu tersendiri.</li>
-              <li>Begitu timer habis, modul akan <strong>dikunci otomatis</strong> dan sistem langsung beralih ke modul berikutnya.</li>
-              <li>NIK KTP berfungsi sebagai Kunci Akses Tertutup (1 Peserta = 1 Kali Sesi).</li>
+              <li>Setiap modul memiliki batas waktu independen.</li>
+              <li>Begitu timer modul habis, sistem akan <strong>mengunci jawaban otomatis</strong> dan langsung beralih ke sesi berikutnya.</li>
+              <li>NIK KTP berlaku sebagai Kunci Akses Tertutup (1 Peserta = 1 Kali Sesi Ujian).</li>
             </ul>
           </div>
         </div>
@@ -288,8 +311,11 @@
 
     </div>
 
-    <!-- VIEW 0: REGISTRASI & VERIFIKASI TERTUTUP -->
+    <!-- ---------------------------------------- -->
+    <!-- VIEW REGISTRASI: VERIFIKASI NIK & KAMERA -->
+    <!-- ---------------------------------------- -->
     <div id="viewRegistration" class="hidden max-w-2xl mx-auto bg-white border border-slate-200 rounded-3xl shadow-xl p-6 sm:p-8 space-y-6">
+      
       <div class="flex items-center justify-between border-b border-slate-100 pb-4">
         <div>
           <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wider inline-flex items-center gap-1.5">
@@ -303,7 +329,7 @@
         </button>
       </div>
 
-      <!-- KOTAK TAHAP 1: INPUT & VERIFIKASI NIK KTP -->
+      <!-- Input & Cek NIK (Respons Cepat Tanpa Soal) -->
       <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
         <div>
           <label class="block text-xs font-black text-slate-800 uppercase tracking-wide mb-1">
@@ -319,14 +345,13 @@
           </div>
         </div>
 
-        <!-- Feedback Status Verifikasi NIK -->
         <div id="nikVerifyStatusBox" class="hidden p-3.5 rounded-xl text-xs space-y-1 transition-all"></div>
       </div>
 
-      <!-- KOTAK TAHAP 2: KONFIRMASI IDENTITAS RESMI & PRESENSI KAMERA -->
+      <!-- Konfirmasi Identitas & Kamera Form -->
       <form id="regForm" onsubmit="handleStartExam(event)" class="hidden space-y-5 pt-2 border-t border-slate-100 transition-all duration-300">
         
-        <!-- Data Terkunci dari Database Berkas HRD -->
+        <!-- Data Pelamar Terkunci -->
         <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-3">
           <div class="flex items-center justify-between text-slate-700 font-extrabold uppercase tracking-wide">
             <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-amber-500"></i> Identitas Terdaftar Resmi</span>
@@ -366,7 +391,7 @@
           </label>
         </div>
 
-        <!-- VERIFIKASI WAJAH & PRESENSI KAMERA DENGAN WATERMARK FORENSIK -->
+        <!-- Kamera Presensi Live & Watermarking Forensik -->
         <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 space-y-3.5">
           <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
             <div class="flex items-center gap-2">
@@ -377,10 +402,9 @@
           </div>
 
           <p class="text-[11px] text-slate-500 leading-relaxed">
-            Untuk memastikan keabsahan kandidat, Anda wajib mengambil 1 foto presensi langsung menggunakan kamera perangkat. Posisikan wajah Anda di dalam bingkai oval tanpa kacamata hitam atau masker.
+            Untuk memastikan keabsahan peserta, ambil 1 foto selfie presensi langsung. Posisikan wajah di dalam oval tanpa kacamata hitam atau masker.
           </p>
 
-          <!-- Viewfinder & Canvas Preview Container -->
           <div class="relative max-w-xs mx-auto aspect-square rounded-2xl overflow-hidden bg-slate-900 border-2 border-slate-300 shadow-inner flex items-center justify-center">
             <video id="webcamVideo" autoplay playsinline muted class="w-full h-full object-cover -scale-x-100 hidden z-10"></video>
             <img id="snapshotPreview" class="hidden w-full h-full object-cover z-10" alt="Foto Presensi Kandidat">
@@ -392,54 +416,55 @@
               </span>
             </div>
 
-            <!-- Placeholder saat kamera belum menyala -->
             <div id="cameraStandbyNotice" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-4 text-center space-y-2 z-0">
               <div class="w-12 h-12 rounded-full bg-slate-800 text-amber-400 flex items-center justify-center text-xl">
                 <i class="fa-solid fa-camera"></i>
               </div>
-              <p id="standbyTitle" class="text-xs font-bold text-white">Kamera Belum Diaktifkan</p>
-              <p id="standbySubtitle" class="text-[10px] text-slate-400">Tekan tombol hijau "Nyalakan Kamera Live" di bawah untuk mengizinkan akses kamera perangkat.</p>
+              <p class="text-xs font-bold text-white">Kamera Belum Diaktifkan</p>
+              <p class="text-[10px] text-slate-400">Tekan tombol hijau di bawah untuk mengizinkan kamera.</p>
             </div>
 
             <canvas id="snapshotCanvas" class="hidden"></canvas>
           </div>
 
-          <!-- Tombol Kendali Kamera Murni WebCam -->
           <div class="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1">
-            <button type="button" id="btnStartCamera" onclick="initiateCameraStream()" class="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
+            <button type="button" id="btnStartCamera" onclick="initiateCameraStream()" class="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl transition flex items-center justify-center gap-2 shadow-xs active:scale-95">
               <i class="fa-solid fa-video"></i>
               <span id="btnStartCameraLabel">Nyalakan Kamera Live</span>
             </button>
-            <button type="button" id="btnCapturePhoto" onclick="captureSnapshotFromStream()" disabled class="w-full sm:w-auto px-5 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-slate-950 text-xs font-black rounded-xl transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
+            <button type="button" id="btnCapturePhoto" onclick="captureSnapshotFromStream()" disabled class="w-full sm:w-auto px-5 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-slate-950 text-xs font-black rounded-xl transition flex items-center justify-center gap-2 shadow-xs active:scale-95">
               <i class="fa-solid fa-camera"></i>
               <span>Jepret Foto Wajah</span>
             </button>
-            <button type="button" id="btnRetakePhoto" onclick="retakeSnapshotPhoto()" class="hidden w-full sm:w-auto px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
+            <button type="button" id="btnRetakePhoto" onclick="retakeSnapshotPhoto()" class="hidden w-full sm:w-auto px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-xs active:scale-95">
               <i class="fa-solid fa-arrows-rotate"></i>
               <span>Foto Ulang</span>
             </button>
           </div>
 
-          <!-- Indikator Validasi Foto -->
           <div id="photoStatusAlert" class="text-center text-[11px] font-bold text-amber-700">
-            * Silakan klik tombol "Nyalakan Kamera Live", lalu klik "Jepret Foto Wajah".
+            * Klik tombol "Nyalakan Kamera Live", lalu klik "Jepret Foto Wajah".
           </div>
         </div>
 
+        <!-- Tombol Masuk Ujian (Menarik Soal Dinamis dari Soal.gs) -->
         <button type="submit" id="btnStartExam" disabled class="w-full py-4 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-slate-950 font-black rounded-2xl shadow-md transition duration-200 text-sm sm:text-base flex items-center justify-center gap-2 active:scale-95">
           <span id="btnStartExamLabel">AMBIL FOTO TERLEBIH DAHULU UNTUK MEMULAI</span>
-          <i class="fa-solid fa-arrow-right"></i>
+          <i id="btnStartExamIcon" class="fa-solid fa-arrow-right"></i>
         </button>
       </form>
+
     </div>
 
-    <!-- VIEW 1: ARENA UJIAN TERPADU -->
+    <!-- ---------------------------------------- -->
+    <!-- VIEW ARENA UJIAN TERPADU                 -->
+    <!-- ---------------------------------------- -->
     <div id="viewExamArena" class="hidden space-y-4 pb-20 lg:pb-0">
       
-      <!-- Navigasi Modul (Linear Step Tracker) -->
-      <div class="bg-white border border-slate-200 rounded-2xl p-2.5 shadow-sm flex items-center justify-between overflow-x-auto gap-2">
+      <!-- Linear Step Tracker -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-2.5 shadow-xs flex items-center justify-between overflow-x-auto gap-2">
         <div class="flex items-center gap-1.5 sm:gap-2">
-          <div id="stepBadge1" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 flex items-center gap-1.5 shrink-0 shadow-sm">
+          <div id="stepBadge1" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 flex items-center gap-1.5 shrink-0 shadow-xs">
             <i class="fa-solid fa-stopwatch text-[11px]"></i>
             <span>M1: Ketelitian (18m)</span>
           </div>
@@ -465,16 +490,15 @@
           </div>
         </div>
 
-        <!-- Pengatur Ukuran Font Aksesibilitas -->
         <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
           <button type="button" onclick="adjustExamFontSize(-1)" title="Perkecil Font" class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white transition">A-</button>
-          <button type="button" onclick="adjustExamFontSize(0)" title="Ukuran Font Normal" class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white transition">A</button>
+          <button type="button" onclick="adjustExamFontSize(0)" title="Ukuran Normal" class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white transition">A</button>
           <button type="button" onclick="adjustExamFontSize(1)" title="Perbesar Font" class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white transition">A+</button>
         </div>
       </div>
 
-      <!-- Bilah Progres Pengerjaan Interaktif (Visual Progress Bar) -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm space-y-2">
+      <!-- Progress Bar Dinamis -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-xs space-y-2">
         <div class="flex items-center justify-between text-xs">
           <div class="flex items-center gap-2">
             <span id="activeModuleIndicator" class="font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">Modul 1 dari 6</span>
@@ -490,11 +514,11 @@
         </div>
       </div>
 
-      <!-- Grid Layout: Sidebar Palet Nomor Soal + Kontainer Soal -->
+      <!-- Layout Soal & Sidebar Palet -->
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         
-        <!-- Sidebar Palet Kisi Nomor Soal (Upgraded Ergonomics & 3-State Status) -->
-        <aside class="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm lg:sticky lg:top-20 order-2 lg:order-1 space-y-3.5">
+        <!-- Sidebar Palet Nomor Soal (3-State Status) -->
+        <aside class="bg-white rounded-3xl border border-slate-200 p-4 shadow-xs lg:sticky lg:top-20 order-2 lg:order-1 space-y-3.5">
           <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <h4 class="text-xs font-black uppercase text-slate-800 tracking-wider flex items-center gap-1.5">
               <i class="fa-solid fa-table-cells text-amber-500"></i> Kisi Nomor Soal
@@ -503,24 +527,23 @@
           </div>
 
           <div id="questionGridContainer" class="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 gap-2 max-h-80 overflow-y-auto pr-1">
-            <!-- Populated dynamically by JavaScript -->
+            <!-- Rendered by JS -->
           </div>
 
           <div class="pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-            <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-3 rounded-md bg-emerald-600 inline-block shadow-xs"></span> Terisi</span>
-            <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-3 rounded-md bg-amber-400 inline-block shadow-xs"></span> Ragu</span>
+            <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-3 rounded-md bg-emerald-600 inline-block"></span> Terisi</span>
+            <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-3 rounded-md bg-amber-400 inline-block"></span> Ragu</span>
             <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-3 rounded-md bg-slate-100 border border-slate-300 inline-block"></span> Kosong</span>
             <button type="button" onclick="jumpToFirstUnanswered()" class="text-amber-600 font-extrabold hover:underline">Cari Kosong</button>
           </div>
         </aside>
 
-        <!-- Area Konten Soal -->
+        <!-- Area Lembar Soal -->
         <div class="lg:col-span-3 order-1 lg:order-2 space-y-4">
-          <div id="moduleContentContainer" class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-7 shadow-sm space-y-6">
-            <!-- Populated dynamically by JavaScript -->
+          <div id="moduleContentContainer" class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-7 shadow-xs space-y-6">
+            <!-- Rendered by JS -->
           </div>
 
-          <!-- Bottom Action Bar (Desktop) -->
           <div class="hidden lg:flex items-center justify-end gap-3 pt-2">
             <button id="btnFooterSubmitModule" onclick="confirmSubmitCurrentModule()" class="px-7 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-black transition flex items-center gap-2 shadow-md active:scale-95">
               <i class="fa-solid fa-lock"></i>
@@ -534,7 +557,7 @@
 
     </div>
 
-    <!-- Mobile Floating Bottom Action Dock (Sticky UX on Phones) -->
+    <!-- Mobile Sticky Dock -->
     <div id="mobileExamDock" class="hidden fixed bottom-0 left-0 right-0 z-30 lg:hidden bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 shadow-lg flex items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <span class="text-xs font-bold text-slate-500">Progres:</span>
@@ -546,10 +569,11 @@
       </button>
     </div>
 
-    <!-- VIEW 2: TANDA TERIMA RESMI (SKOR TETAP DIRAHASIAKAN DARI LAYAR) -->
+    <!-- ---------------------------------------- -->
+    <!-- VIEW HASIL: TANDA TERIMA RESMI (NO SCORE) -->
+    <!-- ---------------------------------------- -->
     <div id="viewResults" class="hidden space-y-6 max-w-3xl mx-auto">
       
-      <!-- Card Banner Konfirmasi Selesai Ujian -->
       <div id="resultBannerCard" class="p-6 sm:p-8 rounded-3xl border bg-white border-slate-200 shadow-md space-y-5 relative overflow-hidden">
         <div class="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
         <div class="absolute left-1/3 -bottom-20 w-64 h-64 rounded-full bg-amber-500/10 blur-3xl pointer-events-none"></div>
@@ -570,48 +594,47 @@
           </div>
         </div>
 
-        <!-- Tanda Terima Digital Resmi -->
         <div class="relative z-10 bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3">
           <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
             <span class="text-[11px] font-bold uppercase text-amber-700 tracking-wider flex items-center gap-1.5">
               <i class="fa-solid fa-receipt"></i> Bukti Registrasi Penyelesaian Ujian
             </span>
-            <span id="receiptTimestamp" class="font-mono-code text-[11px] text-slate-500">2026-10-25 17:45:00</span>
+            <span id="receiptTimestamp" class="font-mono-code text-[11px] text-slate-500">-</span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div>
               <p class="text-slate-500 text-[10px] uppercase font-bold">Nomor Referensi Sesi</p>
-              <p id="receiptTokenId" class="font-mono-code font-bold text-amber-700 text-xs sm:text-sm tracking-wider">KTC-EV-20261025-XXXX</p>
+              <p id="receiptTokenId" class="font-mono-code font-bold text-amber-700 text-xs sm:text-sm tracking-wider">KTC-EV-XXXX</p>
             </div>
             <div>
               <p class="text-slate-500 text-[10px] uppercase font-bold">Evaluasi yang Diselesaikan</p>
-              <p class="font-semibold text-slate-800">6 Sesi Asesmen (145 Butir Soal Lengkap)</p>
+              <p class="font-semibold text-slate-800">6 Sesi Asesmen (145 Butir Soal Terkunci)</p>
             </div>
           </div>
         </div>
 
         <p class="relative z-10 text-xs text-slate-600 leading-relaxed">
-          Terima kasih telah mengikuti seluruh rangkaian evaluasi daring terpadu PT KTC Coal Mining &amp; Energy Site Muara Teweh secara mandiri dan berintegritas. Seluruh lembar respon Anda telah dienkripsi dan diproses langsung oleh sistem rekrutmen pusat.
+          Terima kasih telah menyelesaikan seluruh tahapan evaluasi daring terpadu PT KTC Coal Mining &amp; Energy Site Muara Teweh secara mandiri dan berintegritas. Seluruh lembar respon Anda telah dienkripsi dan diproses langsung oleh sistem rekrutmen pusat.
         </p>
       </div>
 
-      <!-- Panduan Tahapan Seleksi Lanjutan -->
-      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+      <!-- Panduan Seleksi Lanjutan -->
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
         <div class="border-b border-slate-100 pb-3 flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-sm font-black shrink-0 border border-amber-200">
             <i class="fa-solid fa-clipboard-list"></i>
           </div>
           <div>
             <h3 class="text-sm sm:text-base font-extrabold text-slate-900">Alur &amp; Ketentuan Seleksi Lanjutan</h3>
-            <p class="text-xs text-slate-500">Informasi mengenai tahapan berikutnya bagi calon karyawan.</p>
+            <p class="text-xs text-slate-500">Informasi tahapan berikutnya bagi calon karyawan.</p>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-1">
           <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
             <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-black">1</div>
-            <h4 class="text-xs font-bold text-slate-900">Verifikasi Dokumen &amp; Profil</h4>
-            <p class="text-[11px] text-slate-500 leading-relaxed">Tim HRD &amp; Asesor memeriksa kesesuaian berkas lamaran, riwayat pengalaman, dan parameter kompetensi hasil ujian.</p>
+            <h4 class="text-xs font-bold text-slate-900">Verifikasi Profil &amp; Jawaban</h4>
+            <p class="text-[11px] text-slate-500 leading-relaxed">Tim HRD &amp; Asesor memverifikasi kesesuaian berkas lamaran, riwayat pengalaman, dan parameter kompetensi hasil ujian.</p>
           </div>
 
           <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
@@ -628,8 +651,8 @@
         </div>
       </div>
 
-      <!-- Status Pengiriman Data Otomatis ke Database Server -->
-      <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm space-y-3">
+      <!-- Status Background Sync -->
+      <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-xs space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex items-center gap-3">
             <div id="syncStatusIcon" class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg shrink-0 border border-emerald-200">
@@ -637,7 +660,7 @@
             </div>
             <div>
               <h4 id="syncStatusTitle" class="text-sm font-bold text-slate-900">Sinkronisasi Sistem Evaluasi Pusat</h4>
-              <p id="syncStatusSubtitle" class="text-xs text-slate-500">Seluruh lembar respon dan bukti presensi Anda sedang diverifikasi serta disinkronkan ke Pusat Data Rekrutmen PT KTC Coal Mining &amp; Energy...</p>
+              <p id="syncStatusSubtitle" class="text-xs text-slate-500">Seluruh lembar respon dan bukti presensi Anda sedang disinkronkan ke Pusat Data Rekrutmen PT KTC...</p>
             </div>
           </div>
           <div class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-50 text-slate-600 border border-slate-200 shrink-0 self-center sm:self-auto">
@@ -650,15 +673,17 @@
 
   </main>
 
-  <!-- Dialog Peringatan Custom (Z-Index Tertinggi z-[9999]) -->
-  <div id="customDialogModal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-4 text-center transform transition-all">
-      <div id="dialogIconBox" class="w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 mx-auto flex items-center justify-center text-3xl shadow-inner border border-amber-200">
+  <!-- ========================================== -->
+  <!-- MODAL & DIALOG                             -->
+  <!-- ========================================== -->
+  <div id="customDialogModal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-4 text-center">
+      <div id="dialogIconBox" class="w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 mx-auto flex items-center justify-center text-3xl border border-amber-200">
         <i id="dialogIcon" class="fa-solid fa-circle-exclamation"></i>
       </div>
       <div class="space-y-2">
-        <h3 id="dialogTitle" class="text-lg font-black text-slate-900 tracking-tight">Pemberitahuan Sistem</h3>
-        <p id="dialogMessage" class="text-xs sm:text-sm text-slate-600 leading-relaxed">Pesan dialog sistem.</p>
+        <h3 id="dialogTitle" class="text-lg font-black text-slate-900">Pemberitahuan Sistem</h3>
+        <p id="dialogMessage" class="text-xs sm:text-sm text-slate-600 leading-relaxed"></p>
       </div>
       <div class="pt-2">
         <button type="button" onclick="dismissCustomDialog()" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-black rounded-xl transition tracking-wide shadow-md flex items-center justify-center gap-2 active:scale-95">
@@ -669,7 +694,6 @@
     </div>
   </div>
 
-  <!-- Modal Konfirmasi Selesai Modul -->
   <div id="confirmLockModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 text-center">
       <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 mx-auto flex items-center justify-center text-2xl border border-amber-200">
@@ -683,56 +707,31 @@
         <button onclick="dismissConfirmLockModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition border border-slate-200">
           Periksa Kembali
         </button>
-        <button onclick="executeLockAndAdvance()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition shadow-sm active:scale-95">
+        <button onclick="executeLockAndAdvance()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition shadow-xs active:scale-95">
           Ya, Kunci Sekarang
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Anti-Cheat Violation Warning Modal -->
-  <div id="cheatWarningModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-red-300 space-y-4 text-center">
-      <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-2xl border border-red-200">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-      </div>
-      <div>
-        <h3 class="text-lg font-black text-slate-900">PERINGATAN PENYIMPANGAN FOKUS LAYAR</h3>
-        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-          Sistem mendeteksi aktivitas di luar lembar evaluasi (berpindah jendela atau aplikasi lain). Seluruh riwayat kehilangan fokus terekam secara otomatis dalam Lembar Audit Integritas Tim Asesor PT KTC.
-        </p>
-      </div>
-      <div class="p-3 bg-red-50 rounded-xl border border-red-200 text-xs font-bold text-red-700">
-        Total Catatan Integritas: <span id="modalCheatCounter" class="text-base font-black text-red-600">1</span> Kali
-      </div>
-      <button onclick="dismissCheatWarning()" class="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl transition active:scale-95 shadow-sm">
-        SAYA MENGERTI &amp; KEMBALI FOKUS KE UJIAN
-      </button>
-    </div>
-  </div>
-
-  <!-- Footer Singkat & Klausa Hak Cipta -->
+  <!-- Footer -->
   <footer class="bg-white text-slate-500 text-xs py-5 px-4 text-center border-t border-slate-200 mt-8 space-y-2">
     <div>
-      <p class="font-semibold text-slate-700">Plant Department &bull; E-Recruitment Assessment Center</p>
-      <p class="text-slate-400 text-[11px] mt-0.5">PT. KTC Coal Mining &bull; Site Muara Teweh, Barito Utara, Kalimantan Tengah</p>
+      <p class="font-semibold text-slate-700">Plant &amp; Logistic Department &bull; E-Recruitment Assessment Center</p>
+      <p class="text-slate-400 text-[11px] mt-0.5">PT. KTC Coal Mining &amp; Energy &bull; Site Muara Teweh, Barito Utara, Kalimantan Tengah</p>
     </div>
-    
     <div class="pt-2 border-t border-slate-100 max-w-2xl mx-auto space-y-1">
-      <p class="text-amber-600 text-xs font-bold tracking-wide">
-        Sistem ini dikembangkan secara eksklusif oleh <span class="text-amber-700 underline underline-offset-2">Adi Pranata</span>
-      </p>
       <p class="text-slate-400 text-[10px] leading-relaxed">
-        &copy; 2026 PT KTC Coal Mining &amp; Energy &bull; Seluruh Hak Cipta Dilindungi Undang-Undang Republik Indonesia No. 28 Tahun 2014. Dilarang menggandakan, memodifikasi, mendistribusikan, atau menyalahgunakan instrumen evaluasi ini tanpa izin tertulis.
+        &copy; PT KTC Coal Mining &amp; Energy &bull; Seluruh Hak Cipta Dilindungi Undang-Undang.
       </p>
     </div>
   </footer>
 
-  <!-- SCRIPT LOGIKA APLIKASI & BANK SOAL LENGKAP -->
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT: BEBAS TEKS SOAL (OPSI B)       -->
+  <!-- ========================================== -->
   <script>
-    // ==========================================
-    // KONFIGURASI WEBHOOK & VARIABEL GLOBAL STATE
-    // ==========================================
+    // URL Endpoint Google Apps Script Resmi
     const GOOGLE_SCRIPT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzPrUMGPPQLZNVDpF8JsGckPIBorKK0eGpOfNhsNb2GUJYYdke1t9HRH-S_o4-hrh4/exec";
 
     let cameraMediaStream = null;
@@ -742,26 +741,27 @@
     let examTimerInterval = null;
     let currentModuleSecondsLeft = 0;
     let currentFontSizeLevel = 0;
-    let lastBlurTimestamp = 0;
-    let isViolationCooldownActive = false; // Debounce guard untuk mencegah multiple counter
+    let isViolationCooldownActive = false;
 
+    // Array bank soal kosong (diisi dinamis saat tombol masuk ujian diklik)
+    let rawModul1 = [];
+    let rawModul2 = [];
+    let rawModul3 = [];
+    let rawModul4 = [];
+    let rawModul5 = [];
+    let rawModul6 = [];
+
+    // Durasi resmi 6 modul (Total 120 menit)
     const moduleDurations = {
-      1: 18 * 60, // 18 menit
-      2: 15 * 60, // 15 menit
-      3: 20 * 60, // 20 menit
-      4: 23 * 60, // 23 menit
-      5: 22 * 60, // 22 menit
-      6: 20 * 60  // 20 menit
+      1: 18 * 60,
+      2: 15 * 60,
+      3: 20 * 60,
+      4: 23 * 60,
+      5: 22 * 60,
+      6: 20 * 60
     };
 
-    const moduleSubmittedStatus = {
-      1: false,
-      2: false,
-      3: false,
-      4: false,
-      5: false,
-      6: false
-    };
+    const moduleSubmittedStatus = { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false };
 
     const candidateData = {
       nik: "",
@@ -772,448 +772,40 @@
       fotoBase64: "",
       tabViolations: 0,
       answers: {},
-      flagged: {} // Tracking status ragu-ragu
+      flagged: {}
     };
 
-    // ==========================================
-    // FUNGSI NAVIGASI TAMPILAN (VIEW ROUTING)
-    // ==========================================
-    function goToRegistration() {
-      document.getElementById('viewLandingPortal').classList.add('hidden');
-      document.getElementById('viewExamArena').classList.add('hidden');
-      document.getElementById('viewResults').classList.add('hidden');
-      document.getElementById('mobileExamDock').classList.add('hidden');
-      document.getElementById('viewRegistration').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function goToLandingPortal() {
-      document.getElementById('viewRegistration').classList.add('hidden');
-      document.getElementById('viewExamArena').classList.add('hidden');
-      document.getElementById('viewResults').classList.add('hidden');
-      document.getElementById('mobileExamDock').classList.add('hidden');
-      document.getElementById('viewLandingPortal').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // ==========================================
-    // MULAI SESI UJIAN & SISTEM ANTI CHEAT RESPONSIF
-    // ==========================================
-    function handleStartExam(e) {
-      e.preventDefault();
-      if (!isNikVerified) {
-        showCustomDialog('Verifikasi Diperlukan', 'Silakan verifikasi NIK KTP Anda terlebih dahulu.', true);
-        return;
-      }
-      if (!candidateData.fotoBase64) {
-        showCustomDialog('Foto Presensi Diperlukan', 'Silakan ambil foto selfie presensi terlebih dahulu sebelum masuk ruang ujian.', true);
-        return;
-      }
-      if (!document.getElementById('candAgreement').checked) {
-        showCustomDialog('Pakta Integritas', 'Anda wajib mencentang persetujuan pakta integritas kejujuran ujian.', true);
-        return;
-      }
-
-      document.getElementById('viewRegistration').classList.add('hidden');
-      document.getElementById('viewLandingPortal').classList.add('hidden');
-      document.getElementById('viewExamArena').classList.remove('hidden');
-      document.getElementById('examMonitor').classList.remove('hidden');
-      document.getElementById('mobileExamDock').classList.remove('hidden');
-
-      activeModule = 1;
-      initiateModule(activeModule);
-
-      // Aktifkan pemantauan integritas fokus layar
-      setTimeout(() => {
-        isCheatTrackingActive = true;
-      }, 3000);
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // 1. Deteksi Tab Hidden (Visibilitas Tab Berubah)
-    document.addEventListener('visibilitychange', function() {
-      if (!isCheatTrackingActive) return;
-      if (document.visibilityState === 'hidden') {
-        registerScreenViolation("Pindah Tab / Minimize Browser");
-      }
-    });
-
-    // 2. Deteksi Window Blur (Kursor Klik Layar Kedua / Monitor Tambahan / Aplikasi Luar)
-    window.addEventListener('blur', function() {
-      if (!isCheatTrackingActive) return;
-      registerScreenViolation("Hilang Fokus (Monitor Kedua / Aplikasi Lain)");
-    });
-
-    // 3. Pencegahan Shortcut Screenshot & Kombinasi Inspeksi
-    document.addEventListener('keydown', function(e) {
-      if (!isCheatTrackingActive) return;
-
-      // Cegah tombol PrintScreen
-      if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
-        e.preventDefault();
-        registerScreenViolation("Percobaan PrintScreen");
-        obscureScreenForCapture();
-        return false;
-      }
-
-      // Cegah shortcut Windows Screenshot (Win + Shift + S), Mac (Cmd + Shift + 3/4), Inspect (F12, Ctrl+Shift+I), Copy (Ctrl+C), View Source (Ctrl+U)
-      if (
-        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'C' || e.key === 'c' || e.key === 'S' || e.key === 's')) ||
-        (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 'c' || e.key === 'C')) ||
-        (e.metaKey && e.shiftKey) || // Mac screenshots
-        e.key === 'F12'
-      ) {
-        e.preventDefault();
-        registerScreenViolation("Percobaan Pintasan Shortcut / Screenshot");
-        obscureScreenForCapture();
-        return false;
-      }
-    });
-
-    // Cegah klik kanan pada area ujian
-    document.addEventListener('contextmenu', function(e) {
-      if (isCheatTrackingActive) {
-        e.preventDefault();
-      }
-    });
-
-    function registerScreenViolation(reason) {
-      // Cegah penghitungan ganda (debounce cooldown 1.5 detik)
-      if (isViolationCooldownActive) return;
-      isViolationCooldownActive = true;
-      setTimeout(() => {
-        isViolationCooldownActive = false;
-      }, 1500);
-
-      candidateData.tabViolations++;
-      
-      // Update badge monitor di header
-      const trackerEl = document.getElementById('tabSwitchCount');
-      if (trackerEl) trackerEl.textContent = candidateData.tabViolations + 'x';
-      
-      const modalCounter = document.getElementById('modalCheatCounter');
-      if (modalCounter) modalCounter.textContent = candidateData.tabViolations;
-
-      const overlayCount = document.getElementById('overlayCheatCount');
-      if (overlayCount) overlayCount.textContent = candidateData.tabViolations;
-
-      obscureScreenForCapture();
-    }
-
-    function obscureScreenForCapture() {
-      const overlay = document.getElementById('antiScreenshotOverlay');
-      if (overlay) {
-        overlay.classList.remove('hidden');
-      }
-    }
-
-    function resumeExamFocus() {
-      const overlay = document.getElementById('antiScreenshotOverlay');
-      if (overlay) {
-        overlay.classList.add('hidden');
-      }
-      window.focus();
-    }
-
-    function showCustomDialog(title, message, isWarning = true) {
-      document.getElementById('dialogTitle').innerHTML = title;
-      document.getElementById('dialogMessage').innerHTML = message;
-      const iconBox = document.getElementById('dialogIconBox');
-      const icon = document.getElementById('dialogIcon');
-
-      if (isWarning) {
-        iconBox.className = 'w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 mx-auto flex items-center justify-center text-3xl shadow-inner border border-amber-200';
-        icon.className = 'fa-solid fa-circle-exclamation';
-      } else {
-        iconBox.className = 'w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center text-3xl shadow-inner border border-emerald-200';
-        icon.className = 'fa-solid fa-circle-check';
-      }
-
-      document.getElementById('customDialogModal').classList.remove('hidden');
-    }
-
-    function dismissCustomDialog() {
-      document.getElementById('customDialogModal').classList.add('hidden');
-    }
-
-    function dismissCheatWarning() {
-      document.getElementById('cheatWarningModal').classList.add('hidden');
-    }
-
-    // ==========================================
-    // FUNGSI KAMERA DENGAN FORENSIC WATERMARK
-    // ==========================================
-    async function initiateCameraStream() {
-      const videoEl = document.getElementById('webcamVideo');
-      const badgeEl = document.getElementById('cameraBadgeStatus');
-      const dotEl = document.getElementById('camStatusDot');
-      const btnCapture = document.getElementById('btnCapturePhoto');
-      const btnStart = document.getElementById('btnStartCamera');
-      const btnStartLabel = document.getElementById('btnStartCameraLabel');
-      const standbyNotice = document.getElementById('cameraStandbyNotice');
-      const faceGuide = document.getElementById('faceGuideBox');
-      const alertEl = document.getElementById('photoStatusAlert');
-
-      badgeEl.textContent = 'Menghubungkan Kamera...';
-      badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-700 border border-amber-200';
-      if (btnStartLabel) btnStartLabel.textContent = 'Membuka Kamera...';
-
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showCustomDialog(
-          'Kamera Tidak Didukung',
-          'Peramban ini tidak mendukung akses live kamera langsung. Pastikan Anda membuka situs menggunakan Google Chrome atau Safari versi terbaru dengan protokol HTTPS.',
-          true
-        );
-        if (btnStartLabel) btnStartLabel.textContent = 'Nyalakan Kamera Live';
-        return;
-      }
-
+    // ------------------------------------------
+    // JALUR KOMUNIKASI SERVER (FETCH & JSONP)
+    // ------------------------------------------
+    async function executeApiCall(action, params = {}, timeoutMs = 12000) {
+      // Prioritaskan modern fetch terlebih dahulu untuk menghindari 'Script error.' dari injeksi skrip
       try {
-        if (cameraMediaStream) {
-          cameraMediaStream.getTracks().forEach(track => track.stop());
-        }
-
-        const constraints = {
-          video: { facingMode: 'user' },
-          audio: false
-        };
-
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        cameraMediaStream = stream;
-        
-        videoEl.muted = true;
-        videoEl.playsInline = true;
-        videoEl.setAttribute('playsinline', '');
-        videoEl.setAttribute('muted', '');
-        videoEl.srcObject = stream;
-
-        // Buka tampilan video seketika
-        videoEl.classList.remove('hidden');
-        if (standbyNotice) standbyNotice.classList.add('hidden');
-        if (faceGuide) faceGuide.classList.remove('hidden');
-
-        try {
-          await videoEl.play();
-        } catch (playErr) {
-          console.warn("Autoplay ditahan, mencoba ulang:", playErr);
-          videoEl.play();
-        }
-
-        badgeEl.textContent = 'Kamera Aktif (Live)';
-        badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
-        if (dotEl) {
-          dotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping';
-        }
-        
-        if (btnCapture) btnCapture.disabled = false;
-        if (btnStart) btnStart.classList.add('hidden');
-        
-        if (alertEl) {
-          alertEl.textContent = '✓ Live feed terhubung. Posisikan wajah di dalam oval lalu klik "Jepret Foto Wajah".';
-          alertEl.className = 'text-center text-[11px] font-bold text-emerald-700';
-        }
-
-      } catch (err) {
-        console.error('Gagal mengakses kamera live:', err);
-        badgeEl.textContent = 'Izin Kamera Ditolak';
-        badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-red-50 text-red-700 border border-red-200';
-        if (btnStartLabel) btnStartLabel.textContent = 'Coba Nyalakan Lagi';
-
-        showCustomDialog(
-          'Izin Kamera Diblokir Browser',
-          'Browser tidak mengizinkan akses kamera.<br><br><strong>Solusi:</strong><br>1. Klik ikon perizinan/gembok di bilah alamat atas browser.<br>2. Izinkan (Allow) akses <strong>Kamera</strong>.<br>3. Muat ulang halaman lalu coba kembali.',
-          true
-        );
+        const result = await executeFetchRequest(action, params, timeoutMs);
+        if (result) return result;
+      } catch (fetchErr) {
+        console.warn('Fetch langsung terkendala (' + fetchErr.message + '), beralih ke jalur cadangan JSONP...');
       }
+
+      // Cadangan: Jalur JSONP dengan penanganan DOM yang aman
+      return await executeJsonpRequest(action, params, timeoutMs);
     }
 
-    function captureSnapshotFromStream() {
-      const videoEl = document.getElementById('webcamVideo');
-      const canvasEl = document.getElementById('snapshotCanvas');
-      const previewImg = document.getElementById('snapshotPreview');
-      const faceGuide = document.getElementById('faceGuideBox');
-      const btnCapture = document.getElementById('btnCapturePhoto');
-      const btnRetake = document.getElementById('btnRetakePhoto');
-      const btnStart = document.getElementById('btnStartExam');
-      const alertEl = document.getElementById('photoStatusAlert');
-      const badgeEl = document.getElementById('cameraBadgeStatus');
-      const dotEl = document.getElementById('camStatusDot');
-
-      const width = videoEl.videoWidth || 320;
-      const height = videoEl.videoHeight || 320;
-
-      canvasEl.width = 320;
-      canvasEl.height = 320;
-      const ctx = canvasEl.getContext('2d');
-      
-      // Mirror horizontal flip
-      ctx.translate(320, 0);
-      ctx.scale(-1, 1);
-      
-      // Potong ke rasio bujur sangkar (square)
-      const minDim = Math.min(width, height);
-      const sx = (width - minDim) / 2;
-      const sy = (height - minDim) / 2;
-      ctx.drawImage(videoEl, sx, sy, minDim, minDim, 0, 0, 320, 320);
-
-      // Kembalikan transformasi sebelum burning watermark
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-      // WATERMARK FORENSIK PRESENSI
-      const now = new Date();
-      const timeStr = now.getFullYear() + '-' +
-        String(now.getMonth() + 1).padStart(2, '0') + '-' +
-        String(now.getDate()).padStart(2, '0') + ' ' +
-        String(now.getHours()).padStart(2, '0') + ':' +
-        String(now.getMinutes()).padStart(2, '0') + ':' +
-        String(now.getSeconds()).padStart(2, '0');
-
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-      ctx.fillRect(0, 275, 320, 45);
-
-      ctx.fillStyle = '#f59e0b';
-      ctx.font = 'bold 9px monospace';
-      ctx.fillText('PT KTC COAL MINING & ENERGY', 8, 290);
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '8px monospace';
-      const shortName = candidateData.nama ? candidateData.nama.slice(0, 16) : 'CANDIDATE';
-      ctx.fillText(candidateData.nik + ' | ' + shortName, 8, 301);
-      ctx.fillText(timeStr + ' WIB', 8, 312);
-
-      candidateData.fotoBase64 = canvasEl.toDataURL('image/jpeg', 0.70);
-
-      previewImg.src = candidateData.fotoBase64;
-      previewImg.classList.remove('hidden');
-      videoEl.classList.add('hidden');
-      if (faceGuide) faceGuide.classList.add('hidden');
-
-      if (btnCapture) btnCapture.classList.add('hidden');
-      if (btnRetake) btnRetake.classList.remove('hidden');
-
-      badgeEl.textContent = 'Foto Presensi Terkunci';
-      badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
-      if (dotEl) {
-        dotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-600';
-      }
-
-      if (alertEl) {
-        alertEl.textContent = '✓ Foto presensi resmi berhasil diverifikasi & dibubuhi cap waktu. Silakan masuk ke ruang ujian.';
-        alertEl.className = 'text-center text-[11px] font-bold text-emerald-700';
-      }
-
-      if (btnStart) {
-        btnStart.disabled = false;
-        document.getElementById('btnStartExamLabel').textContent = 'MASUK KE RUANG UJIAN TERPADU';
-      }
-
-      if (cameraMediaStream) {
-        cameraMediaStream.getTracks().forEach(track => track.stop());
-      }
-    }
-
-    function retakeSnapshotPhoto() {
-      candidateData.fotoBase64 = "";
-
-      document.getElementById('snapshotPreview').classList.add('hidden');
-      document.getElementById('webcamVideo').classList.remove('hidden');
-      document.getElementById('btnRetakePhoto').classList.add('hidden');
-      
-      const btnCapture = document.getElementById('btnCapturePhoto');
-      if (btnCapture) {
-        btnCapture.classList.remove('hidden');
-        btnCapture.disabled = true;
-      }
-
-      const btnStartCam = document.getElementById('btnStartCamera');
-      if (btnStartCam) btnStartCam.classList.remove('hidden');
-
-      const btnStart = document.getElementById('btnStartExam');
-      btnStart.disabled = true;
-      document.getElementById('btnStartExamLabel').textContent = 'AMBIL FOTO TERLEBIH DAHULU UNTUK MEMULAI';
-
-      const alertEl = document.getElementById('photoStatusAlert');
-      if (alertEl) {
-        alertEl.textContent = '* Menghubungkan ulang kamera...';
-        alertEl.className = 'text-center text-[11px] font-bold text-amber-700';
-      }
-
-      initiateCameraStream();
-    }
-
-    // ==========================================
-    // FUNGSI VERIFIKASI NIK CLOSED-LOOP
-    // ==========================================
-    async function handleVerifyNik() {
-      const nikInput = document.getElementById('candNik');
-      const cleanNik = (nikInput.value || '').trim().replace(/[^0-9]/g, '');
-      const statusBox = document.getElementById('nikVerifyStatusBox');
-      const regForm = document.getElementById('regForm');
-      const verifyBtn = document.getElementById('btnVerifyNik');
-      const verifyBtnLabel = document.getElementById('btnVerifyNikLabel');
-
-      if (cleanNik.length !== 16) {
-        showCustomDialog(
-          'Format NIK Belum Sesuai',
-          'Nomor Induk Kependudukan (NIK) wajib terdiri dari <strong>16 digit angka</strong> sesuai KTP.',
-          true
-        );
-        return;
-      }
-
-      verifyBtn.disabled = true;
-      verifyBtnLabel.textContent = 'MEMERIKSA...';
-      statusBox.className = 'p-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs space-y-1';
-      statusBox.innerHTML = '<p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-notch fa-spin"></i> Menghubungkan ke Database Pelamar...</p>' +
-        '<p class="text-[11px] text-amber-700">Memeriksa keabsahan berkas NIK ' + cleanNik + ' di server rekrutmen...</p>';
-      statusBox.classList.remove('hidden');
-
-      executeJsonpNikCheck(cleanNik)
-        .then(res => {
-          handleNikResponse(res, cleanNik);
-        })
-        .catch(() => {
-          executeFetchNikCheck(cleanNik)
-            .then(res => {
-              handleNikResponse(res, cleanNik);
-            })
-            .catch(err => {
-              console.error('Koneksi verifikasi NIK gagal:', err);
-              verifyBtn.disabled = false;
-              verifyBtnLabel.textContent = 'VERIFIKASI NIK';
-              isNikVerified = false;
-              regForm.classList.add('hidden');
-
-              statusBox.className = 'p-3.5 rounded-xl border border-red-200 bg-red-50 text-red-700 text-xs space-y-2';
-              statusBox.innerHTML = '<p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation text-red-600"></i> Gagal Terhubung ke Server Database</p>' +
-                '<p class="text-[11px] leading-relaxed">Browser gagal menghubungi Apps Script. Pastikan URL Deployment sudah sesuai dan izin deployment disetel ke "Anyone".</p>';
-
-              showCustomDialog(
-                'Koneksi Database Terputus',
-                'Sistem tidak dapat menghubungi endpoint Google Apps Script.<br><br>' +
-                '<strong>Langkah Pemeriksaan:</strong><br>' +
-                '1. Pastikan URL pada variabel <code>GOOGLE_SCRIPT_WEBHOOK_URL</code> di baris kode sudah benar.<br>' +
-                '2. Pastikan izin deployment Google Apps Script adalah <strong>Who has access: Anyone</strong>.',
-                true
-              );
-            });
-        });
-    }
-
-    function executeJsonpNikCheck(nik) {
+    function executeJsonpRequest(action, params = {}, timeoutMs = 10000) {
       return new Promise((resolve, reject) => {
-        const callbackName = 'ktc_nik_cb_' + Math.floor(Math.random() * 1000000);
+        const callbackName = 'ktc_cb_' + Math.floor(Math.random() * 1000000);
         const script = document.createElement('script');
+        script.crossOrigin = 'anonymous';
+
         let timer = setTimeout(() => {
           cleanup();
-          reject(new Error('JSONP Timeout'));
-        }, 10000);
+          reject(new Error('Koneksi timeout'));
+        }, timeoutMs);
 
         function cleanup() {
           clearTimeout(timer);
-          if (script.parentNode) script.parentNode.removeChild(script);
-          delete window[callbackName];
+          if (script && script.parentNode) script.parentNode.removeChild(script);
+          try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
         }
 
         window[callbackName] = function(data) {
@@ -1223,21 +815,33 @@
 
         script.onerror = function() {
           cleanup();
-          reject(new Error('JSONP Load Error'));
+          reject(new Error('Gagal memuat respon server'));
         };
 
-        const separator = GOOGLE_SCRIPT_WEBHOOK_URL.includes('?') ? '&' : '?';
-        script.src = GOOGLE_SCRIPT_WEBHOOK_URL + separator + 'action=checkNIK&nik=' + encodeURIComponent(nik) + '&callback=' + callbackName;
+        let queryString = 'action=' + encodeURIComponent(action) + '&prefix=' + callbackName + '&callback=' + callbackName;
+        for (let key in params) {
+          queryString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+        }
+
+        const sep = GOOGLE_SCRIPT_WEBHOOK_URL.includes('?') ? '&' : '?';
+        script.src = GOOGLE_SCRIPT_WEBHOOK_URL + sep + queryString;
         document.body.appendChild(script);
       });
     }
 
-    async function executeFetchNikCheck(nik) {
+    async function executeFetchRequest(action, params = {}, timeoutMs = 10000) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-      const separator = GOOGLE_SCRIPT_WEBHOOK_URL.includes('?') ? '&' : '?';
-      const response = await fetch(GOOGLE_SCRIPT_WEBHOOK_URL + separator + 'action=checkNIK&nik=' + encodeURIComponent(nik), {
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      
+      let queryString = 'action=' + encodeURIComponent(action);
+      for (let key in params) {
+        queryString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+      }
+
+      const sep = GOOGLE_SCRIPT_WEBHOOK_URL.includes('?') ? '&' : '?';
+      const response = await fetch(GOOGLE_SCRIPT_WEBHOOK_URL + sep + queryString, {
         method: 'GET',
+        mode: 'cors',
         redirect: 'follow',
         signal: controller.signal
       });
@@ -1246,55 +850,93 @@
       return await response.json();
     }
 
+    // ------------------------------------------
+    // TAHAP 1: VERIFIKASI NIK RINGAN (< 1s)
+    // ------------------------------------------
+    async function handleVerifyNik() {
+      const nikInput = document.getElementById('candNik');
+      const cleanNik = (nikInput.value || '').trim().replace(/[^0-9]/g, '');
+      const statusBox = document.getElementById('nikVerifyStatusBox');
+      const regForm = document.getElementById('regForm');
+      const verifyBtn = document.getElementById('btnVerifyNik');
+      const verifyBtnLabel = document.getElementById('btnVerifyNikLabel');
+
+      if (cleanNik.length !== 16) {
+        showCustomDialog('Format NIK Belum Sesuai', 'Nomor Induk Kependudukan (NIK) wajib 16 digit angka.', true);
+        return;
+      }
+
+      verifyBtn.disabled = true;
+      verifyBtnLabel.textContent = 'MEMERIKSA...';
+      statusBox.className = 'p-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs space-y-1';
+      statusBox.innerHTML = '<p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-notch fa-spin"></i> Menghubungkan ke Database Pelamar...</p>' +
+        '<p class="text-[11px] text-amber-700">Memeriksa keabsahan berkas NIK ' + cleanNik + ' di server...</p>';
+      statusBox.classList.remove('hidden');
+
+      try {
+        const res = await executeApiCall('checkNIK', { nik: cleanNik }, 10000);
+        handleNikResponse(res, cleanNik);
+      } catch (err) {
+        console.error('Koneksi verifikasi NIK gagal:', err);
+        verifyBtn.disabled = false;
+        verifyBtnLabel.textContent = 'VERIFIKASI NIK';
+        isNikVerified = false;
+        regForm.classList.add('hidden');
+
+        statusBox.className = 'p-3.5 rounded-xl border border-red-200 bg-red-50 text-red-700 text-xs space-y-2';
+        statusBox.innerHTML = '<p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation text-red-600"></i> Gagal Menghubungi Server</p>' +
+          '<p class="text-[11px] leading-relaxed">Periksa koneksi internet Anda atau pastikan Web App Apps Script disetel ke <strong>Anyone</strong>.</p>';
+      }
+    }
+
     function handleNikResponse(res, cleanNik) {
       const verifyBtn = document.getElementById('btnVerifyNik');
       const verifyBtnLabel = document.getElementById('btnVerifyNikLabel');
       const statusBox = document.getElementById('nikVerifyStatusBox');
       const regForm = document.getElementById('regForm');
-      const nikInput = document.getElementById('candNik');
 
       verifyBtn.disabled = false;
       verifyBtnLabel.textContent = 'VERIFIKASI NIK';
 
-      if (res.status === 'already_completed') {
-        statusBox.className = 'p-3.5 rounded-xl border border-red-200 bg-red-50 text-red-700 text-xs space-y-1';
-        statusBox.innerHTML = '<p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark text-red-600"></i> Ujian Sudah Pernah Diikuti</p>' +
-          '<p class="text-[11px] leading-relaxed">NIK <strong>' + cleanNik + '</strong> tercatat telah menyelesaikan sesi ujian seleksi sebelumnya. Akses pengerjaan ditutup.</p>';
-        regForm.classList.add('hidden');
-        isNikVerified = false;
+      if (!res) {
+        showCustomDialog('Respon Kosong', 'Tidak menerima data balasan dari server.', true);
+        return;
+      }
 
-        showCustomDialog(
-          'Akses Ditolak: Sesi Telah Selesai',
-          'NIK KTP <strong>' + cleanNik + '</strong> tercatat telah menyelesaikan sesi ujian sebelumnya.<br><br>Setiap pelamar hanya memiliki kesempatan <strong>1 kali pengerjaan</strong>.',
-          true
-        );
+      if (res.status === 'already_completed') {
+        isNikVerified = false;
+        regForm.classList.add('hidden');
+        statusBox.className = 'p-3.5 rounded-xl border border-red-200 bg-red-50 text-red-800 text-xs space-y-1';
+        statusBox.innerHTML = '<p class="font-black text-red-700 flex items-center gap-1.5"><i class="fa-solid fa-ban"></i> NIK Sudah Menyelesaikan Ujian</p>' +
+          '<p class="text-[11px] text-red-600 leading-relaxed">' + (res.message || 'NIK Anda tercatat telah menyelesaikan sesi ujian.') + '</p>';
+        return;
+      }
+
+      if (res.status === 'invalid_role') {
+        isNikVerified = false;
+        regForm.classList.add('hidden');
+        statusBox.className = 'p-3.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 text-xs space-y-1';
+        statusBox.innerHTML = '<p class="font-black text-amber-800 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> Formasi Tidak Termasuk Asesmen Ini</p>' +
+          '<p class="text-[11px] leading-relaxed">Posisi lamaran Anda (<strong>' + (res.posisiAsli || '-') + '</strong>) tidak dijadwalkan mengikuti asesmen online ini. Hanya 4 posisi: Admin Workshop, Admin Warehouse, Storeman, dan Fuelman.</p>';
         return;
       }
 
       if (res.status === 'not_found') {
-        statusBox.className = 'p-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs space-y-1';
-        statusBox.innerHTML = '<p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-amber-600"></i> NIK Tidak Terdaftar di Database Pelamar</p>' +
-          '<p class="text-[11px] leading-relaxed">NIK <strong>' + cleanNik + '</strong> tidak ditemukan dalam database pelamar yang lolos seleksi berkas administrasi PT KTC.</p>';
-        regForm.classList.add('hidden');
         isNikVerified = false;
-
-        showCustomDialog(
-          'NIK Tidak Ditemukan di Database',
-          'Nomor Induk Kependudukan (NIK) <strong>' + cleanNik + '</strong> tidak terdaftar dalam database pelamar yang lolos seleksi berkas administrasi PT KTC Coal Mining &amp; Energy.<br><br>Pastikan nomor KTP yang Anda ketik sudah benar dan sesuai dengan berkas yang didaftarkan.',
-          true
-        );
+        regForm.classList.add('hidden');
+        statusBox.className = 'p-3.5 rounded-xl border border-red-200 bg-red-50 text-red-800 text-xs space-y-1';
+        statusBox.innerHTML = '<p class="font-black text-red-700 flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark"></i> NIK Tidak Terdaftar</p>' +
+          '<p class="text-[11px] text-red-600 leading-relaxed">Nomor KTP ' + cleanNik + ' tidak ditemukan di database pelamar yang lolos seleksi berkas.</p>';
         return;
       }
 
       if (res.status === 'success') {
         isNikVerified = true;
-        nikInput.readOnly = true;
-
         candidateData.nik = cleanNik;
-        candidateData.nama = res.nama || "Kandidat Terdaftar";
-        candidateData.whatsapp = res.whatsapp || "-";
-        candidateData.posisi = res.posisiLabel || "Storeman";
-        candidateData.posisiKey = res.posisiKey || "storeman";
+        candidateData.nama = res.nama || '';
+        candidateData.whatsapp = res.whatsapp || '';
+        candidateData.posisi = res.posisiLabel || 'Storeman';
+        candidateData.posisiKey = res.posisiKey || 'storeman';
 
         document.getElementById('candName').value = candidateData.nama;
         document.getElementById('candPhone').value = candidateData.whatsapp;
@@ -1302,37 +944,180 @@
         document.getElementById('candRole').value = candidateData.posisiKey;
 
         statusBox.className = 'p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs space-y-1';
-        statusBox.innerHTML = '<p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600"></i> Berkas NIK Terverifikasi Resmi</p>' +
+        statusBox.innerHTML = '<p class="font-black text-emerald-700 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> NIK Terverifikasi Sah</p>' +
           '<p class="text-[11px] text-emerald-700">Nama: <strong>' + candidateData.nama + '</strong> | Posisi: <strong>' + candidateData.posisi + '</strong></p>';
 
         regForm.classList.remove('hidden');
+        return;
+      }
+
+      showCustomDialog('Pemberitahuan Sistem', res.message || 'Status verifikasi tidak dikenali.', true);
+    }
+
+    // ------------------------------------------
+    // NAVIGASI VIEW
+    // ------------------------------------------
+    function goToRegistration() {
+      document.getElementById('viewLandingPortal').classList.add('hidden');
+      document.getElementById('viewRegistration').classList.remove('hidden');
+      document.getElementById('viewExamArena').classList.add('hidden');
+      document.getElementById('viewResults').classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goToLandingPortal() {
+      document.getElementById('viewRegistration').classList.add('hidden');
+      document.getElementById('viewLandingPortal').classList.remove('hidden');
+      document.getElementById('viewExamArena').classList.add('hidden');
+      document.getElementById('viewResults').classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ------------------------------------------
+    // KAMERA PRESENSI & WATERMARKING
+    // ------------------------------------------
+    async function initiateCameraStream() {
+      const video = document.getElementById('webcamVideo');
+      const standbyNotice = document.getElementById('cameraStandbyNotice');
+      const faceGuide = document.getElementById('faceGuideBox');
+      const btnCapture = document.getElementById('btnCapturePhoto');
+      const btnStart = document.getElementById('btnStartCamera');
+      const camStatusDot = document.getElementById('camStatusDot');
+      const camBadge = document.getElementById('cameraBadgeStatus');
+
+      try {
+        if (cameraMediaStream) {
+          cameraMediaStream.getTracks().forEach(track => track.stop());
+        }
+
+        cameraMediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 640 }, facingMode: 'user' },
+          audio: false
+        });
+
+        video.srcObject = cameraMediaStream;
+        video.classList.remove('hidden');
+        standbyNotice.classList.add('hidden');
+        faceGuide.classList.remove('hidden');
+        document.getElementById('snapshotPreview').classList.add('hidden');
+
+        btnCapture.disabled = false;
+        btnStart.classList.add('hidden');
+        camStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
+        camBadge.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        camBadge.textContent = 'Kamera Aktif';
+      } catch (errCam) {
+        console.error('Kamera gagal diakses:', errCam);
+        showCustomDialog('Izin Kamera Ditolak', 'Sistem memerlukan akses kamera depan untuk foto verifikasi wajah. Mohon izinkan akses kamera di peramban Anda.', true);
       }
     }
 
-    // ==========================================
-    // PENGATURAN MODUL & TIMER
-    // ==========================================
+    function captureSnapshotFromStream() {
+      const video = document.getElementById('webcamVideo');
+      const canvas = document.getElementById('snapshotCanvas');
+      const preview = document.getElementById('snapshotPreview');
+      const faceGuide = document.getElementById('faceGuideBox');
+      const btnCapture = document.getElementById('btnCapturePhoto');
+      const btnRetake = document.getElementById('btnRetakePhoto');
+      const btnStartExam = document.getElementById('btnStartExam');
+      const btnStartLabel = document.getElementById('btnStartExamLabel');
+      const statusAlert = document.getElementById('photoStatusAlert');
+
+      if (!video.videoWidth) {
+        showCustomDialog('Kamera Belum Siap', 'Tunggu sebentar hingga pratinjau kamera muncul sempurna.', true);
+        return;
+      }
+
+      const size = Math.min(video.videoWidth, video.videoHeight);
+      canvas.width = size;
+      canvas.height = size;
+
+      const ctx = canvas.getContext('2d');
+      const startX = (video.videoWidth - size) / 2;
+      const startY = (video.videoHeight - size) / 2;
+
+      // Efek cermin horizontal sesuai live preview
+      ctx.translate(size, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, startX, startY, size, size, 0, 0, size, size);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+      // Watermarking Forensik
+      const now = new Date();
+      const timeStr = now.toLocaleDateString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit' }) + ' ' +
+        now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.fillRect(0, size - 70, size, 70);
+
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = 'bold 15px sans-serif';
+      ctx.fillText('PT KTC COAL MINING & ENERGY - PRESENSI RESMI', 16, size - 44);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '12px monospace';
+      ctx.fillText('NIK: ' + (candidateData.nik || '-') + ' | ' + (candidateData.nama || '-'), 16, size - 26);
+      ctx.fillText(timeStr + ' | Formasi: ' + (candidateData.posisi || '-'), 16, size - 10);
+
+      const base64Img = canvas.toDataURL('image/jpeg', 0.85);
+      candidateData.fotoBase64 = base64Img;
+
+      preview.src = base64Img;
+      preview.classList.remove('hidden');
+      video.classList.add('hidden');
+      faceGuide.classList.add('hidden');
+
+      btnCapture.classList.add('hidden');
+      btnRetake.classList.remove('hidden');
+
+      btnStartExam.disabled = false;
+      btnStartLabel.textContent = 'MASUK KE RUANG UJIAN TERPADU (120 MENIT)';
+      statusAlert.className = 'text-center text-[11px] font-bold text-emerald-700';
+      statusAlert.textContent = '✓ Foto presensi berhasil diambil dan dibubuhi stempel forensik.';
+
+      if (cameraMediaStream) {
+        cameraMediaStream.getTracks().forEach(track => track.stop());
+        cameraMediaStream = null;
+      }
+    }
+
+    function retakeSnapshotPhoto() {
+      candidateData.fotoBase64 = '';
+      document.getElementById('btnStartExam').disabled = true;
+      document.getElementById('btnStartExamLabel').textContent = 'AMBIL FOTO TERLEBIH DAHULU UNTUK MEMULAI';
+      document.getElementById('btnRetakePhoto').classList.add('hidden');
+      document.getElementById('btnCapturePhoto').classList.remove('hidden');
+      document.getElementById('snapshotPreview').classList.add('hidden');
+      document.getElementById('photoStatusAlert').className = 'text-center text-[11px] font-bold text-amber-700';
+      document.getElementById('photoStatusAlert').textContent = '* Klik tombol "Nyalakan Kamera Live", lalu klik "Jepret Foto Wajah".';
+
+      initiateCameraStream();
+    }
+
+    // ------------------------------------------
+    // INISIALISASI & PENGENDALIAN MODUL
+    // ------------------------------------------
     function initiateModule(modNum) {
       activeModule = modNum;
-      currentModuleSecondsLeft = moduleDurations[modNum] || 15 * 60;
+      currentModuleSecondsLeft = moduleDurations[modNum] || (15 * 60);
 
+      document.getElementById('activeModuleIndicator').textContent = 'Modul ' + modNum + ' dari 6';
       updateStepBadges();
       renderCurrentModuleContent(modNum);
       renderQuestionGridPalette(modNum);
       updateModuleAnsweredCounter();
+      startExamModuleTimer(currentModuleSecondsLeft);
+    }
 
-      document.getElementById('activeModuleIndicator').textContent = 'Modul ' + modNum + ' dari 6';
-      const submitLabel = modNum === 6 
-        ? 'SELESAIKAN MODUL 6 & KUNCI SELURUH EVALUASI' 
-        : 'SELESAIKAN MODUL ' + modNum + ' & LANJUT KE TAHAP BERIKUTNYA';
-      document.getElementById('btnFooterSubmitLabel').textContent = submitLabel;
-
+    function startExamModuleTimer(seconds) {
       if (examTimerInterval) clearInterval(examTimerInterval);
+      currentModuleSecondsLeft = seconds;
       updateTimerDisplay();
 
       examTimerInterval = setInterval(() => {
         currentModuleSecondsLeft--;
         updateTimerDisplay();
+
         if (currentModuleSecondsLeft <= 0) {
           clearInterval(examTimerInterval);
           autoLockCurrentModule();
@@ -1341,48 +1126,244 @@
     }
 
     function updateTimerDisplay() {
-      const minutes = Math.floor(currentModuleSecondsLeft / 60);
-      const seconds = currentModuleSecondsLeft % 60;
-      const formatted = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-      const displayEl = document.getElementById('timerDisplay');
-      const containerEl = document.getElementById('timerContainer');
-      const iconEl = document.getElementById('timerIcon');
+      const display = document.getElementById('timerDisplay');
+      const container = document.getElementById('timerContainer');
+      const m = Math.floor(currentModuleSecondsLeft / 60);
+      const s = currentModuleSecondsLeft % 60;
+      const formatted = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
 
-      displayEl.textContent = formatted;
+      if (display) display.textContent = formatted;
 
-      // Peringatan visual halus di bawah 2 menit
       if (currentModuleSecondsLeft <= 120) {
-        containerEl.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl bg-red-950 border border-red-700 text-red-300 shadow-inner pulse-soft';
-        displayEl.className = 'font-mono-code font-black text-sm sm:text-base tracking-wider text-red-400';
-        iconEl.className = 'fa-solid fa-triangle-exclamation text-sm text-red-400 animate-bounce';
+        container.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl bg-red-700 border border-red-600 text-white shadow-inner animate-pulse';
+        if (display) display.className = 'font-mono-code font-black text-sm sm:text-base tracking-wider text-white';
       } else {
-        containerEl.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-400 shadow-inner';
-        displayEl.className = 'font-mono-code font-black text-sm sm:text-base tracking-wider text-amber-400';
-        iconEl.className = 'fa-solid fa-stopwatch text-sm text-amber-400 animate-pulse';
+        container.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-400 shadow-inner';
+        if (display) display.className = 'font-mono-code font-black text-sm sm:text-base tracking-wider text-amber-400';
       }
     }
 
+    // ------------------------------------------
+    // DETEKSI INTEGRITAS & ANTI-CURANG
+    // ------------------------------------------
+    function triggerFocusViolation() {
+      if (!isCheatTrackingActive || isViolationCooldownActive) return;
+
+      isViolationCooldownActive = true;
+      candidateData.tabViolations++;
+
+      const tabCount = document.getElementById('tabSwitchCount');
+      const overlayCount = document.getElementById('overlayCheatCount');
+      if (tabCount) tabCount.textContent = candidateData.tabViolations + 'x';
+      if (overlayCount) overlayCount.textContent = candidateData.tabViolations;
+
+      const overlay = document.getElementById('antiScreenshotOverlay');
+      if (overlay) overlay.classList.remove('hidden');
+
+      setTimeout(() => {
+        isViolationCooldownActive = false;
+      }, 1500);
+    }
+
+    function resumeExamFocus() {
+      const overlay = document.getElementById('antiScreenshotOverlay');
+      if (overlay) overlay.classList.add('hidden');
+    }
+
+    window.addEventListener('blur', triggerFocusViolation);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        triggerFocusViolation();
+      }
+    });
+
+    // ------------------------------------------
+    // MODAL DIALOG SISTEM
+    // ------------------------------------------
+    function showCustomDialog(title, message, isWarning = false) {
+      document.getElementById('dialogTitle').textContent = title;
+      document.getElementById('dialogMessage').innerHTML = message;
+
+      const box = document.getElementById('dialogIconBox');
+      const icon = document.getElementById('dialogIcon');
+
+      if (isWarning) {
+        box.className = 'w-16 h-16 rounded-2xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-3xl border border-red-200';
+        icon.className = 'fa-solid fa-triangle-exclamation';
+      } else {
+        box.className = 'w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 mx-auto flex items-center justify-center text-3xl border border-amber-200';
+        icon.className = 'fa-solid fa-circle-exclamation';
+      }
+
+      document.getElementById('customDialogModal').classList.remove('hidden');
+    }
+
+    function dismissCustomDialog() {
+      document.getElementById('customDialogModal').classList.add('hidden');
+    }
+
+    // ------------------------------------------
+    // PENYELESAIAN UJIAN & SINKRONISASI HASIL
+    // ------------------------------------------
+    function finishEntireExam() {
+      if (examTimerInterval) clearInterval(examTimerInterval);
+      isCheatTrackingActive = false;
+
+      document.getElementById('examMonitor').classList.add('hidden');
+      document.getElementById('mobileExamDock').classList.add('hidden');
+      document.getElementById('viewExamArena').classList.add('hidden');
+      document.getElementById('viewResults').classList.remove('hidden');
+
+      const refToken = 'KTC-' + Math.floor(100000 + Math.random() * 900000);
+      const now = new Date();
+      const timeStr = now.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) + ' pukul ' +
+        now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+
+      document.getElementById('candFinishedName').textContent = candidateData.nama;
+      document.getElementById('candFinishedMeta').textContent = 'Formasi: ' + candidateData.posisi + ' • NIK: ' + candidateData.nik + ' • WhatsApp: ' + candidateData.whatsapp;
+      document.getElementById('receiptTokenId').textContent = refToken;
+      document.getElementById('receiptTimestamp').textContent = timeStr;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      synchronizeExamResults(refToken, timeStr);
+    }
+
+    async function synchronizeExamResults(refToken, timeStr) {
+      const syncIcon = document.getElementById('syncStatusIcon');
+      const syncTitle = document.getElementById('syncStatusTitle');
+      const syncSubtitle = document.getElementById('syncStatusSubtitle');
+
+      // Hitung Skor Modul Secara Tersembunyi (HRD Backend)
+      // M1
+      let m1Score = 0;
+      rawModul1.forEach((item, idx) => {
+        const userAns = candidateData.answers['m1_' + idx];
+        const isActuallySame = item[0] === item[1];
+        if (userAns === isActuallySame) m1Score += 2;
+      });
+
+      // M2
+      let m2Sum = 0;
+      rawModul2.forEach((_, idx) => {
+        const val = candidateData.answers['m2_' + idx];
+        if (typeof val === 'number') m2Sum += val;
+      });
+      const m2Score = rawModul2.length ? Math.round(m2Sum / rawModul2.length) : 0;
+
+      // M3
+      let m3Sum = 0;
+      rawModul3.forEach((_, idx) => {
+        if (candidateData.answers['m3_' + idx] !== undefined) m3Sum += 5;
+      });
+      const m3Score = Math.min(100, m3Sum);
+
+      // M4
+      let m4Sum = 0;
+      rawModul4.forEach((_, idx) => {
+        const val = candidateData.answers['m4_' + idx];
+        if (typeof val === 'number') m4Sum += val;
+      });
+      const m4Score = rawModul4.length ? Math.round(m4Sum / rawModul4.length) : 0;
+
+      // M5
+      let m5Score = 0;
+      rawModul5.forEach((item, idx) => {
+        const userIdx = candidateData.answers['m5_' + idx];
+        if (userIdx !== undefined && item.opts[userIdx] && item.opts[userIdx].score === 100) {
+          m5Score += Math.round(100 / (rawModul5.length || 15));
+        }
+      });
+      m5Score = Math.min(100, m5Score);
+
+      // M6
+      let m6Score = 0;
+      rawModul6.forEach((item, idx) => {
+        const userIdx = candidateData.answers['m6_' + idx];
+        if (userIdx !== undefined && item.opts[userIdx] && item.opts[userIdx].score === 100) {
+          m6Score += Math.round(100 / (rawModul6.length || 15));
+        }
+      });
+      m6Score = Math.min(100, m6Score);
+
+      // Total Skor Terbobot
+      const totalScore = Math.round(
+        (m1Score * 0.15) +
+        (m2Score * 0.15) +
+        (m3Score * 0.10) +
+        (m4Score * 0.20) +
+        (m5Score * 0.20) +
+        (m6Score * 0.20)
+      );
+
+      let recommendation = 'MERAH';
+      if (totalScore >= 75) recommendation = 'HIJAU';
+      else if (totalScore >= 60) recommendation = 'KUNING';
+
+      const payload = {
+        timestamp: timeStr,
+        nik: candidateData.nik,
+        nama: candidateData.nama,
+        whatsapp: candidateData.whatsapp,
+        posisi: candidateData.posisi,
+        foto_selfie: candidateData.fotoBase64 || '',
+        skor_ketelitian: m1Score,
+        skor_kesabaran: m2Score,
+        skor_kerjasama: m3Score,
+        skor_integritas_sop: m4Score,
+        skor_logika_hitungan: m5Score,
+        skor_teknis_formasi: m6Score,
+        total_skor_terbobot: totalScore,
+        rekomendasi: recommendation,
+        pelanggaran_tab: candidateData.tabViolations
+      };
+
+      try {
+        await fetch(GOOGLE_SCRIPT_WEBHOOK_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        syncIcon.className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg shrink-0 border border-emerald-200';
+        syncIcon.innerHTML = '<i class="fa-solid fa-cloud-circle-check"></i>';
+        syncTitle.textContent = 'Sinkronisasi Pusat Berhasil';
+        syncSubtitle.textContent = 'Lembar jawaban dan rekaman audit presensi Anda telah tersimpan permanen di Pusat Data PT KTC.';
+      } catch (errSync) {
+        console.warn('Gagal sinkronisasi background:', errSync);
+        syncIcon.className = 'w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg shrink-0 border border-amber-200';
+        syncIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+        syncTitle.textContent = 'Data Terkunci di Perangkat';
+        syncSubtitle.textContent = 'Ujian Anda telah selesai dan lembar respon telah diamankan di cache browser.';
+      }
+    }
+
+    // ------------------------------------------
+    // KONTROL AUTO-LOCK & MODAL KONFIRMASI
+    // ------------------------------------------
     function autoLockCurrentModule() {
+      moduleSubmittedStatus[activeModule] = true;
       showCustomDialog(
         'Waktu Modul ' + activeModule + ' Telah Habis',
-        'Batas waktu pengerjaan untuk modul ini telah berakhir. Sistem secara otomatis mengunci seluruh lembar respon dan melanjutkan ke tahap berikutnya.',
-        true
+        'Batas waktu untuk modul ini telah habis. Seluruh jawaban Anda pada modul ' + activeModule + ' telah disimpan dan dikunci otomatis oleh sistem.',
+        false
       );
-      moduleSubmittedStatus[activeModule] = true;
-      advanceToNextModule();
+
+      if (activeModule < 6) {
+        initiateModule(activeModule + 1);
+      } else {
+        finishEntireExam();
+      }
     }
 
     function confirmSubmitCurrentModule() {
-      const total = getTotalQuestionsInModule(activeModule);
-      const answered = getAnsweredCountInModule(activeModule);
+      const modal = document.getElementById('confirmLockModal');
       const msg = document.getElementById('confirmLockMessage');
+      const ansCount = getModuleAnsweredCount(activeModule);
+      const totalQ = getModuleTotalQuestions(activeModule);
 
-      if (answered < total) {
-        msg.innerHTML = 'Anda baru menjawab <strong>' + answered + ' dari ' + total + ' soal</strong> pada Modul ' + activeModule + '.<br><br>Apakah Anda yakin ingin mengunci modul ini sekarang? Soal yang kosong akan bernilai 0.';
-      } else {
-        msg.innerHTML = 'Seluruh <strong>' + total + ' butir soal</strong> Modul ' + activeModule + ' telah terisi lengkap.<br><br>Apakah Anda yakin ingin mengunci lembar jawaban ini?';
-      }
-      document.getElementById('confirmLockModal').classList.remove('hidden');
+      msg.innerHTML = 'Anda telah menjawab <strong>' + ansCount + ' dari ' + totalQ + ' butir</strong> pada Modul ' + activeModule + '.<br>Apakah Anda yakin ingin mengunci modul ini dan lanjut ke tahap berikutnya? Jawaban yang telah dikunci tidak dapat diubah kembali.';
+      modal.classList.remove('hidden');
     }
 
     function dismissConfirmLockModal() {
@@ -1392,981 +1373,80 @@
     function executeLockAndAdvance() {
       dismissConfirmLockModal();
       moduleSubmittedStatus[activeModule] = true;
-      advanceToNextModule();
-    }
 
-    function advanceToNextModule() {
       if (activeModule < 6) {
         initiateModule(activeModule + 1);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         finishEntireExam();
       }
     }
 
-    async function finishEntireExam() {
-      isCheatTrackingActive = false;
-      if (examTimerInterval) clearInterval(examTimerInterval);
+    // ------------------------------------------
+    // PENGAMBILAN PAKET SOAL (OPSI B) & MULAI UJIAN
+    // ------------------------------------------
+    async function handleStartExam(event) {
+      if (event) event.preventDefault();
 
-      document.getElementById('examMonitor').classList.add('hidden');
-      document.getElementById('mobileExamDock').classList.add('hidden');
-      document.getElementById('viewExamArena').classList.add('hidden');
-      document.getElementById('viewResults').classList.remove('hidden');
+      if (!isNikVerified || !candidateData.nik) {
+        showCustomDialog('Verifikasi NIK Diperlukan', 'Silakan lakukan verifikasi NIK terlebih dahulu sebelum memulai ujian.', true);
+        return;
+      }
 
-      const now = new Date();
-      const timestampStr = now.getFullYear() + '-' +
-        String(now.getMonth() + 1).padStart(2, '0') + '-' +
-        String(now.getDate()).padStart(2, '0') + ' ' +
-        String(now.getHours()).padStart(2, '0') + ':' +
-        String(now.getMinutes()).padStart(2, '0') + ':' +
-        String(now.getSeconds()).padStart(2, '0');
+      if (!candidateData.fotoBase64) {
+        showCustomDialog('Foto Presensi Belum Diambil', 'Silakan ambil foto verifikasi wajah terlebih dahulu menggunakan kamera live.', true);
+        return;
+      }
 
-      const tokenId = 'KTC-EV-' + now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + '-' + candidateData.nik.slice(-4);
+      const btnStart = document.getElementById('btnStartExam');
+      const btnLabel = document.getElementById('btnStartExamLabel');
+      const btnIcon = document.getElementById('btnStartExamIcon');
 
-      document.getElementById('candFinishedName').textContent = candidateData.nama;
-      document.getElementById('candFinishedMeta').textContent = 'Formasi: ' + candidateData.posisi + ' • NIK: ' + candidateData.nik + ' • No WA: ' + candidateData.whatsapp;
-      document.getElementById('receiptTimestamp').textContent = timestampStr;
-      document.getElementById('receiptTokenId').textContent = tokenId;
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      const payload = compileCandidateResults(timestampStr);
-      await sendDataDirectToGoogleSheets(payload);
-    }
-
-    function compileCandidateResults(timestampStr) {
-      let m1Correct = 0;
-      rawModul1.forEach((item, idx) => {
-        const isIdentical = (item[0] === item[1]);
-        if (candidateData.answers['m1_' + idx] === isIdentical) {
-          m1Correct++;
-        }
-      });
-      const scoreM1 = Math.round((m1Correct / rawModul1.length) * 100);
-
-      let m2Sum = 0;
-      rawModul2.forEach((item, idx) => {
-        m2Sum += Number(candidateData.answers['m2_' + idx] || 0);
-      });
-      const scoreM2 = Math.round(m2Sum / rawModul2.length);
-
-      let m3Sum = 0;
-      rawModul3.forEach((item, idx) => {
-        if (candidateData.answers['m3_' + idx] !== undefined) m3Sum += 85;
-      });
-      const scoreM3 = Math.round(m3Sum / rawModul3.length);
-
-      let m4Sum = 0;
-      rawModul4.forEach((item, idx) => {
-        m4Sum += Number(candidateData.answers['m4_' + idx] || 0);
-      });
-      const scoreM4 = Math.round(m4Sum / rawModul4.length);
-
-      let m5Sum = 0;
-      rawModul5.forEach((item, idx) => {
-        const optIdx = candidateData.answers['m5_' + idx];
-        if (optIdx !== undefined && item.opts[optIdx]) {
-          m5Sum += Number(item.opts[optIdx].score || 0);
-        }
-      });
-      const scoreM5 = Math.round(m5Sum / rawModul5.length);
-
-      const roleQuestions = rawModul6[candidateData.posisiKey] || rawModul6['storeman'];
-      let m6Sum = 0;
-      roleQuestions.forEach((item, idx) => {
-        const optIdx = candidateData.answers['m6_' + idx];
-        if (optIdx !== undefined && item.opts[optIdx]) {
-          m6Sum += Number(item.opts[optIdx].score || 0);
-        }
-      });
-      const scoreM6 = Math.round(m6Sum / roleQuestions.length);
-
-      const totalScore = Math.round(
-        (scoreM1 * 0.15) +
-        (scoreM2 * 0.25) +
-        (scoreM3 * 0.25) +
-        (scoreM4 * 0.15) +
-        (scoreM5 * 0.10) +
-        (scoreM6 * 0.10)
-      );
-
-      let recommendation = "MERAH";
-      if (totalScore >= 75) recommendation = "HIJAU";
-      else if (totalScore >= 60) recommendation = "KUNING";
-
-      return {
-        timestamp: timestampStr,
-        nik: candidateData.nik,
-        nama: candidateData.nama,
-        whatsapp: candidateData.whatsapp,
-        posisi: candidateData.posisi,
-        foto_selfie: candidateData.fotoBase64,
-        skor_ketelitian: scoreM1,
-        skor_kesabaran: scoreM2,
-        skor_kerjasama: scoreM3,
-        skor_integritas_sop: scoreM4,
-        skor_logika_hitungan: scoreM5,
-        skor_teknis_formasi: scoreM6,
-        total_skor_terbobot: totalScore,
-        rekomendasi: recommendation,
-        pelanggaran_tab: candidateData.tabViolations
-      };
-    }
-
-    async function sendDataDirectToGoogleSheets(payload) {
-      const syncStatusIcon = document.getElementById('syncStatusIcon');
-      const syncStatusTitle = document.getElementById('syncStatusTitle');
-      const syncStatusSubtitle = document.getElementById('syncStatusSubtitle');
+      btnStart.disabled = true;
+      btnLabel.textContent = 'MEMUAT PAKET SOAL DARI SERVER...';
+      btnIcon.className = 'fa-solid fa-circle-notch fa-spin';
 
       try {
-        await fetch(GOOGLE_SCRIPT_WEBHOOK_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
+        const res = await executeApiCall('getExamPackage', { roleKey: candidateData.posisiKey }, 15000);
 
-        syncStatusIcon.className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg shrink-0 border border-emerald-200';
-        syncStatusIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-        syncStatusTitle.textContent = 'Data & Foto Berhasil Tercatat di Pusat Data Rekrutmen';
-        syncStatusSubtitle.textContent = 'Seluruh lembar respon dan foto presensi resmi telah terenkripsi dan tersimpan di Basis Data Asesmen PT KTC.';
+        if (!res || res.status !== 'success' || !res.examData) {
+          throw new Error((res && res.message) ? res.message : 'Paket soal tidak dapat dimuat.');
+        }
+
+        const data = res.examData;
+        rawModul1 = data.m1 || [];
+        rawModul2 = data.m2 || [];
+        rawModul3 = data.m3 || [];
+        rawModul4 = data.m4 || [];
+        rawModul5 = data.m5 || [];
+        rawModul6 = data.m6 || [];
+
+        if (!rawModul1.length) {
+          throw new Error('Bank data soal kosong pada server.');
+        }
+
+        // Beralih ke Arena Ujian
+        document.getElementById('viewRegistration').classList.add('hidden');
+        document.getElementById('viewLandingPortal').classList.add('hidden');
+        document.getElementById('viewExamArena').classList.remove('hidden');
+        document.getElementById('examMonitor').classList.remove('hidden');
+        document.getElementById('mobileExamDock').classList.remove('hidden');
+
+        isCheatTrackingActive = true;
+        initiateModule(1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
       } catch (err) {
-        console.warn('Pengiriman background payload terselesaikan.', err);
-        syncStatusIcon.className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg shrink-0 border border-emerald-200';
-        syncStatusIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-        syncStatusTitle.textContent = 'Data Terkunci di Sistem Basis Data Klien';
-        syncStatusSubtitle.textContent = 'Tanda terima resmi telah dibuat. Anda dipersilakan menutup jendela halaman ujian ini.';
+        console.error('Gagal mengambil paket soal:', err);
+        btnStart.disabled = false;
+        btnLabel.textContent = 'MASUK KE RUANG UJIAN TERPADU (120 MENIT)';
+        btnIcon.className = 'fa-solid fa-arrow-right';
+        showCustomDialog('Gagal Memuat Soal', 'Terjadi kendala saat mengambil paket soal dari server: ' + err.message + '. Silakan coba beberapa saat lagi.', true);
       }
     }
 
-    // ==========================================
-    // RENDER SOAL & INTERAKSI JAWABAN
-    // ==========================================
-    function recordM1Answer(idx, isSame) {
-      candidateData.answers['m1_' + idx] = isSame;
-      renderCurrentModuleContent(1);
-      renderQuestionGridPalette(1);
-      updateModuleAnsweredCounter();
-    }
-
-    function recordM2Answer(idx, score) {
-      candidateData.answers['m2_' + idx] = score;
-      renderQuestionGridPalette(2);
-      updateModuleAnsweredCounter();
-    }
-
-    function recordForcedChoiceAnswer(idx, choice) {
-      candidateData.answers['m3_' + idx] = choice;
-      renderCurrentModuleContent(3);
-      renderQuestionGridPalette(3);
-      updateModuleAnsweredCounter();
-    }
-
-    function recordM4Answer(idx, score) {
-      candidateData.answers['m4_' + idx] = score;
-      renderQuestionGridPalette(4);
-      updateModuleAnsweredCounter();
-    }
-
-    function recordM5Answer(idx, optIdx) {
-      candidateData.answers['m5_' + idx] = optIdx;
-      renderQuestionGridPalette(5);
-      updateModuleAnsweredCounter();
-    }
-
-    function recordM6Answer(idx, optIdx) {
-      candidateData.answers['m6_' + idx] = optIdx;
-      renderQuestionGridPalette(6);
-      updateModuleAnsweredCounter();
-    }
-
-    function toggleFlagQuestion(idx) {
-      const qKey = 'm' + activeModule + '_' + idx;
-      candidateData.flagged[qKey] = !candidateData.flagged[qKey];
-      renderCurrentModuleContent(activeModule);
-      renderQuestionGridPalette(activeModule);
-    }
-
-    function getTotalQuestionsInModule(modNum) {
-      if (modNum === 1) return rawModul1.length;
-      if (modNum === 2) return rawModul2.length;
-      if (modNum === 3) return rawModul3.length;
-      if (modNum === 4) return rawModul4.length;
-      if (modNum === 5) return rawModul5.length;
-      if (modNum === 6) return (rawModul6[candidateData.posisiKey] || rawModul6['storeman']).length;
-      return 0;
-    }
-
-    function getAnsweredCountInModule(modNum) {
-      const total = getTotalQuestionsInModule(modNum);
-      const prefix = 'm' + modNum + '_';
-      let count = 0;
-      for (let i = 0; i < total; i++) {
-        if (candidateData.answers[prefix + i] !== undefined) count++;
-      }
-      return count;
-    }
-
-    function updateModuleAnsweredCounter() {
-      const total = getTotalQuestionsInModule(activeModule);
-      const answered = getAnsweredCountInModule(activeModule);
-      const percent = total > 0 ? Math.round((answered / total) * 100) : 0;
-
-      document.getElementById('moduleAnsweredCount').textContent = answered + '/' + total;
-      document.getElementById('modulePercentageCount').textContent = percent + '%';
-      document.getElementById('examProgressBar').style.width = percent + '%';
-      
-      const dockCounter = document.getElementById('dockCounter');
-      if (dockCounter) dockCounter.textContent = answered + '/' + total;
-    }
-
-    function updateStepBadges() {
-      for (let i = 1; i <= 6; i++) {
-        const badge = document.getElementById('stepBadge' + i);
-        if (!badge) continue;
-        if (moduleSubmittedStatus[i]) {
-          badge.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shrink-0';
-          badge.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i> <span>M' + i + ': Terkunci</span>';
-        } else if (i === activeModule) {
-          badge.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 flex items-center gap-1.5 shrink-0 shadow-sm';
-          badge.innerHTML = '<i class="fa-solid fa-stopwatch animate-pulse"></i> <span>M' + i + ': Ujian</span>';
-        } else {
-          badge.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200 flex items-center gap-1.5 shrink-0';
-          badge.innerHTML = '<i class="fa-solid fa-lock text-[11px]"></i> <span>M' + i + ': Terkunci</span>';
-        }
-      }
-    }
-
-    function renderQuestionGridPalette(modNum) {
-      const gridContainer = document.getElementById('questionGridContainer');
-      const total = getTotalQuestionsInModule(modNum);
-      const prefix = 'm' + modNum + '_';
-      let html = '';
-
-      for (let i = 0; i < total; i++) {
-        const qKey = prefix + i;
-        const isAnswered = candidateData.answers[qKey] !== undefined;
-        const isFlagged = candidateData.flagged[qKey] === true;
-
-        let colorClass = '';
-        if (isFlagged) {
-          colorClass = 'bg-amber-400 text-slate-950 font-black border-amber-500 shadow-sm ring-1 ring-amber-400';
-        } else if (isAnswered) {
-          colorClass = 'bg-emerald-600 text-white font-bold border-emerald-600 shadow-sm';
-        } else {
-          colorClass = 'bg-slate-50 text-slate-600 font-semibold border-slate-200 hover:bg-slate-100 hover:text-slate-900';
-        }
-
-        html += '<button type="button" onclick="scrollToQuestion(' + i + ')" class="min-w-[42px] h-10 rounded-xl text-xs flex items-center justify-center border transition font-mono-code active:scale-95 ' + colorClass + '">' +
-          (i + 1) +
-          '</button>';
-      }
-      gridContainer.innerHTML = html;
-    }
-
-    function scrollToQuestion(idx) {
-      const el = document.getElementById('qcard_' + activeModule + '_' + idx);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.classList.add('ring-2', 'ring-amber-500');
-        setTimeout(() => el.classList.remove('ring-2', 'ring-amber-500'), 1200);
-      }
-    }
-
-    function jumpToFirstUnanswered() {
-      const total = getTotalQuestionsInModule(activeModule);
-      const prefix = 'm' + activeModule + '_';
-      for (let i = 0; i < total; i++) {
-        if (candidateData.answers[prefix + i] === undefined) {
-          scrollToQuestion(i);
-          return;
-        }
-      }
-      showCustomDialog('Lengkap Terisi', 'Seluruh soal pada modul ini telah Anda jawab lengkap!', false);
-    }
-
-    function adjustExamFontSize(delta) {
-      const content = document.getElementById('moduleContentContainer');
-      if (delta === 0) currentFontSizeLevel = 0;
-      else currentFontSizeLevel = Math.max(-1, Math.min(1, currentFontSizeLevel + delta));
-
-      content.classList.remove('text-xs', 'text-sm', 'text-base');
-      if (currentFontSizeLevel === -1) content.classList.add('text-xs');
-      else if (currentFontSizeLevel === 1) content.classList.add('text-base');
-      else content.classList.add('text-sm');
-    }
-
-    // ==========================================
-    // BANK SOAL LENGKAP 6 MODUL (145 BUTIR)
-    // ==========================================
-    const rawModul1 = [
-      ["CAT-336D-9981-A", "CAT-336D-9981-A"],
-      ["HYD-SEAL-88902-X", "HYD-SEAL-88902-K"],
-      ["KOM-PC2000-8819", "KOM-PC2000-8819"],
-      ["BRG-6205-2RS-C3", "BRG-6205-2RS-C3"],
-      ["FLTR-HF6510-DON", "FLTR-HF6510-D0N"],
-      ["O-RING-NBR-70-112", "O-RING-NBR-70-112"],
-      ["V-BELT-B54-GATES", "V-BELT-B54-GATES"],
-      ["PIN-BUCKET-120MM", "PIN-BUCKET-120NM"],
-      ["BUSH-TRACK-LINK-85", "BUSH-TRACK-LINK-85"],
-      ["GASKET-CYL-HEAD-6D", "GASKET-CYL-HEAD-6D"],
-      ["VALVE-RELIEF-350B", "VALVE-RELIEF-350B"],
-      ["HOSE-1SN-1/2-100R1", "HOSE-1SN-1/2-100R1"],
-      ["SPROCKET-CAT320-21T", "SPROCKET-CAT320-21T"],
-      ["TURBO-GARRETT-GT45", "TURB0-GARRETT-GT45"],
-      ["NOZZLE-INJ-0445120", "NOZZLE-INJ-0445120"],
-      ["ALTERNATOR-24V-80A", "ALTERNATOR-24V-80A"],
-      ["STARTER-MOTOR-24V-9T", "STARTER-MOTOR-24V-9T"],
-      ["CYLINDER-ARM-PC300", "CYLINDER-ARM-PC300"],
-      ["PUMP-HYD-MAIN-K3V", "PUMP-HYD-MAIN-K3V"],
-      ["FILTER-AIR-P821575", "FILTER-AIR-P821575"],
-      ["WATER-SEPARATOR-FS19", "WATER-SEPARAT0R-FS19"],
-      ["BOLT-HEX-M16X80-8.8", "BOLT-HEX-M16X80-8.8"],
-      ["NUT-LOCK-M20-GR10", "NUT-L0CK-M20-GR10"],
-      ["WASHER-FLAT-M16-ZP", "WASHER-FLAT-M16-ZP"],
-      ["SEAL-CRANKSHAFT-REAR", "SEAL-CRANKSHAFT-REAR"],
-      ["BEARING-CONROD-STD", "BEARING-CONROD-STD"],
-      ["PISTON-RING-SET-6D12", "PISTON-RING-SET-6D12"],
-      ["LINER-CYLINDER-PC400", "LINER-CYLINDER-PC400"],
-      ["MANIFOLD-EXHAUST-C15", "MANIFOLD-EXHAUST-C15"],
-      ["RADIATOR-CORE-D85ESS", "RADIATOR-CORE-D85ESS"],
-      ["THERMOSTAT-82C-KOM", "THERMOSTAT-82C-KOM"],
-      ["COOLANT-PREMIX-50/50", "COOLANT-PREMIX-50/50"],
-      ["GREASE-EP2-LITHIUM", "GREASE-EP2-LITHIUM"],
-      ["OIL-15W40-CI4-200L", "OIL-15W40-CI4-200L"],
-      ["GEAR-SUN-SWING-M2X", "GEAR-SUN-SWING-M2X"],
-      ["ROLLER-CARRIER-CAT330", "ROLLER-CARRIER-CAT330"],
-      ["ROLLER-TRACK-SF-D65", "ROLLER-TRACK-SF-D65"],
-      ["IDLER-ASSY-PC200-8", "IDLER-ASSY-PC200-8"],
-      ["SHOE-TRACK-600MM-HD", "SHOE-TRACK-600MM-HD"],
-      ["LINK-ASSY-45L-PC300", "LINK-ASSY-45L-PC300"],
-      ["TOOTH-BUCKET-1U3352", "TOOTH-BUCKET-1U3352"],
-      ["ADAPTER-BUCKET-1U335", "ADAPTER-BUCKET-1U335"],
-      ["PIN-LOCK-TOOTH-8E635", "PIN-LOCK-TOOTH-8E635"],
-      ["RETAINER-PIN-8E6359", "RETAINER-PIN-8E6359"],
-      ["CUTTING-EDGE-BLADE-D8", "CUTTING-EDGE-BLADE-D8"],
-      ["END-BIT-LEVEL-CUT-RH", "END-BIT-LEVEL-CUT-RH"],
-      ["END-BIT-LEVEL-CUT-LH", "END-BIT-LEVEL-CUT-LH"],
-      ["MIRROR-ASSY-CABIN-RH", "MIRROR-ASSY-CABIN-LH"],
-      ["LIGHT-LED-WORK-24V-4", "LIGHT-LED-WORK-24V-4"],
-      ["WIPER-BLADE-24INCH-HD", "WIPER-BLADE-24INCH-HD"]
-    ];
-
-    const rawModul2 = [
-      { q: "Ketika operator lapangan memprotes distribusi komponen darurat di tengah breakdown operasional unit, sikap utama Anda adalah:", opts: [
-        { t: "Mengabaikan keluhan karena sudah sesuai jadwal antrian umum", score: 20 },
-        { t: "Mendengarkan urgensi operasional secara tenang, memverifikasi ketersediaan stok darurat, dan mengoordinasikan jadwal penyerahan tercepat", score: 100 },
-        { t: "Menyuruh operator langsung menghubungi Superintendent Plant", score: 40 },
-        { t: "Membalas protes dengan menegaskan batasan jam kerja logistik", score: 10 }
-      ]},
-      { q: "Menghadapi tumpukan manifes penerimaan barang muatan kontainer saat mendekati akhir jam kerja shift reguler:", opts: [
-        { t: "Menunda seluruh proses verifikasi fisik untuk shift berikutnya tanpa pemberitahuan", score: 10 },
-        { t: "Memeriksa dokumen kritis, mengamankan barang bernilai tinggi ke area karantina, dan menyusun log serah terima tertulis", score: 100 },
-        { t: "Menandatangani surat jalan tanpa melakukan penghitungan fisik karena mengejar jam pulang", score: 0 },
-        { t: "Menolak penurunan muatan sebelum jam kerja esok hari", score: 20 }
-      ]},
-      { q: "Saat rekan satu tim kerja melakukan kekeliruan pencatatan lokasi BIN penyimpanan sparepart fast-moving:", opts: [
-        { t: "Menegur di depan mekanik plant agar tidak terulang", score: 20 },
-        { t: "Mengoreksi data sistem bersama rekan tersebut, menata ulang fisik rak, dan mereview standar pelabelan lokasi", score: 100 },
-        { t: "Membiarkan kesalahan tersebut hingga stock opname bulanan", score: 0 },
-        { t: "Membuat laporan pelanggaran langsung ke divisi HRD", score: 30 }
-      ]},
-      { q: "Menerima instruksi mendesak dari dua atasan teknis berbeda dalam rentang waktu bersamaan:", opts: [
-        { t: "Mengerjakan tugas yang paling mudah dan mengabaikan yang sulit", score: 10 },
-        { t: "Mengklarifikasi tingkat urgensi risiko downtime alat kepada kedua atasan dan menyepakati urutan prioritas eksekusi", score: 100 },
-        { t: "Menghentikan seluruh pekerjaan hingga kedua atasan berdiskusi sendiri", score: 20 },
-        { t: "Mengerjakan tugas atasan yang jabatannya paling tinggi saja", score: 50 }
-      ]},
-      { q: "Kondisi cuaca hujan deras ekstrem menghambat alur distribusi material ke area pit penambangan:", opts: [
-        { t: "Memaksakan pengiriman tanpa perlindungan terpal anti-air", score: 0 },
-        { t: "Mengamankan stok di staging warehouse, melaporkan estimasi delay ke dispatch pit, dan menyiapkan proteksi muatan", score: 100 },
-        { t: "Menutup operasional gudang secara sepihak", score: 10 },
-        { t: "Menyalahkan tim logistik transport atas kendala cuaca", score: 10 }
-      ]},
-      { q: "Ditemukan selisih fisik seal kit saat stock opname mingguan berjumlah 2 unit di rak cadangan:", opts: [
-        { t: "Mengambil komponen dari rak lain untuk menutupi catatan selisih", score: 0 },
-        { t: "Membuka riwayat kartu stok, memeriksa log penyerahan shift sebelumnya, dan mencatat deviasi pada lembar Berita Acara", score: 100 },
-        { t: "Mengabaikan selisih karena nilainya dianggap kecil", score: 10 },
-        { t: "Mengubah angka di kartu stok fisik tanpa konfirmasi", score: 0 }
-      ]},
-      { q: "Permintaan sparepart khusus tanpa nomor Work Order resmi diajukan mekanik untuk perbaikan darurat di pit:", opts: [
-        { t: "Menolak mentah-mentah tanpa memberikan solusi penanganan darurat", score: 30 },
-        { t: "Menerbitkan formulir pengeluaran darurat bertandatangan Foreman on duty, mencatat nomor unit, dan meminta nomor WO susulan maksimal 1x24 jam", score: 100 },
-        { t: "Mengeluarkan part secara bebas tanpa bukti dokumen apa pun", score: 0 },
-        { t: "Menyuruh mekanik mengambil sendiri part di rak tanpa pengawasan", score: 0 }
-      ]},
-      { q: "Mendapati kondisi tumpahan oli hidrolik minor di area lalu lintas forklift warehouse:", opts: [
-        { t: "Melewati area tersebut karena bukan tanggung jawab kebersihan", score: 0 },
-        { t: "Segera memasang barikade tanda licin, mengambil spill kit untuk menyerap tumpahan, dan melaporkan potensi bahaya K3", score: 100 },
-        { t: "Menunggu petugas kebersihan shift malam", score: 10 },
-        { t: "Menyiram tumpahan dengan air ke saluran pembuangan umum", score: 0 }
-      ]},
-      { q: "Vendor pengiriman menolak membongkar palet komponen sebelum jam makan siang:", opts: [
-        { t: "Berdebat keras dengan sopir vendor di pintu gerbang", score: 10 },
-        { t: "Mengecek kesesuaian segel kontainer, mengatur jadwal antrean unloading teratur, dan memastikan area parkir aman", score: 100 },
-        { t: "Membatalkan seluruh pesanan material secara emosional", score: 0 },
-        { t: "Membiarkan truk terparkir di badan jalan operasional tambang", score: 10 }
-      ]},
-      { q: "Terjadi gangguan sistem koneksi ERP/Spreadsheet saat banyak unit alat berat menunggu part fast-moving:", opts: [
-        { t: "Menghentikan seluruh aktivitas pengeluaran barang hingga server menyala", score: 20 },
-        { t: "Mengaktifkan prosedur manual berbasis lembar kendali fisik ganda, mencatat kode part dan nomor unit, lalu menginput saat sistem normal", score: 100 },
-        { t: "Mengeluarkan barang berdasarkan ingatan hafalan pribadi", score: 0 },
-        { t: "Menyuruh operator komplain langsung ke bagian IT pusat", score: 10 }
-      ]},
-      { q: "Rekan kerja sering mengeluhkan beban tugas penyusunan laporan stock mingguan yang padat:", opts: [
-        { t: "Menyuruh rekan tersebut mengajukan pengunduran diri jika tidak sanggup", score: 0 },
-        { t: "Membantu mengevaluasi alur pengelompokan data dan berbagi metode formula spreadsheet yang lebih efisien", score: 100 },
-        { t: "Menjauhi rekan tersebut agar tidak terbebani curhatan", score: 20 },
-        { t: "Melaporkan rekan tersebut ke pimpinan sebagai pekerja lambat", score: 10 }
-      ]},
-      { q: "Kunci loker penyimpanan tools bernilai tinggi (Special Application Tools) tertinggal di saku pakaian saat tiba di mess:", opts: [
-        { t: "Menyimpannya di mess dan baru mengembalikan keesokan hari saat ganti shift", score: 30 },
-        { t: "Segera menghubungi Foreman plant yang bertugas dan mengantarkan kembali kunci ke pos pengawas workshop", score: 100 },
-        { t: "Menitipkan kunci ke sembarang kawan mess tanpa tanda terima", score: 10 },
-        { t: "Berpura-pura tidak mengetahui keberadaan kunci tersebut", score: 0 }
-      ]},
-      { q: "Melihat operator crane mengangkat beban komponen engine tanpa memasang tagline pengendali:", opts: [
-        { t: "Diam saja karena bukan wewenang pengawasan langsung Anda", score: 0 },
-        { t: "Segera memberikan isyarat stop aman (Stop Work Authority), mengingatkan risiko ayunan beban, dan memastikan tagline terpasang", score: 100 },
-        { t: "Merekam video kejadian untuk diunggah ke media sosial", score: 0 },
-        { t: "Menertawakan tindakan operator dari kejauhan", score: 0 }
-      ]},
-      { q: "Barang kiriman supplier tiba dalam kemasan kardus basah dan sobek di sudut palet:", opts: [
-        { t: "Langsung menandatangani surat jalan tanpa memeriksa isi bagian dalam", score: 0 },
-        { t: "Melakukan inspeksi bersama sopir vendor, mengambil foto dokumentasi kerusakan, dan mencatat kondisi fisik pada lembar tanda terima", score: 100 },
-        { t: "Merusak kardus lebih parah agar barang diganti baru", score: 0 },
-        { t: "Menolak seluruh kiriman vendor meskipun 90% barang lainnya dalam kondisi aman", score: 30 }
-      ]},
-      { q: "Foreman meminta percepatan pengeluaran oli drum tanpa menunggu hasil uji sampel laboratorium (SOS):", opts: [
-        { t: "Menuruti permintaan foreman secara diam-diam tanpa catatan", score: 0 },
-        { t: "Menjelaskan batas toleransi prosedur pengujian pelumas, memeriksa status hold lab, dan meminta otorisasi tertulis Kepala Departemen", score: 100 },
-        { t: "Menuduh foreman berniat merusak komponen unit", score: 20 },
-        { t: "Mengganti label drum oli bekas menjadi drum baru", score: 0 }
-      ]},
-      { q: "Mendengar isu negatif tidak benar mengenai pemotongan hak kompensasi kerja di kalangan pekerja logistik:", opts: [
-        { t: "Ikut menyebarkan isu tersebut ke grup WhatsApp tanpa verifikasi", score: 0 },
-        { t: "Menjaga ketenangan ruang kerja dan menyarankan rekan kerja meminta klarifikasi resmi ke HRD Site melalui forum P5M", score: 100 },
-        { t: "Mengajak mogok kerja secara spontan di area workshop", score: 0 },
-        { t: "Bersikap acuh tak acuh dan memusuhi rekan yang bertanya", score: 20 }
-      ]},
-      { q: "Forklift utama gudang mengalami penurunan tekanan oli hidrolik secara bertahap saat shift berjalan:", opts: [
-        { t: "Terus memaksakan forklift bekerja hingga benar-benar mati total", score: 0 },
-        { t: "Menghentikan unit di area parkir aman, memasang label Out of Service (Danger Tag), dan membuat laporan breakdown ke mekanik plant", score: 100 },
-        { t: "Menyembunyikan indikator kebocoran dengan kain majun", score: 0 },
-        { t: "Meminjamkan forklift rusak ke divisi lain tanpa peringatan", score: 0 }
-      ]},
-      { q: "Penataan barang di rak overstock melebihi kapasitas beban aman (Safe Working Load):", opts: [
-        { t: "Membiarkan selama rak belum roboh atau melengkung parah", score: 0 },
-        { t: "Menghitung kembali akumulasi bobot per tingkat, memindahkan kelebihan beban ke layout lantai, dan memperbarui label kapasitas rak", score: 100 },
-        { t: "Menumpuk barang lebih tinggi untuk menghemat ruang lorong", score: 0 },
-        { t: "Menutupi papan informasi beban rak agar tidak ditegur tim safety", score: 0 }
-      ]},
-      { q: "Menemukan barang sisa pekerjaan proyek workshop berserakan di meja kerja tool room:", opts: [
-        { t: "Membuang seluruh komponen sisa ke tempat sampah umum", score: 10 },
-        { t: "Memilah material layak pakai, membersihkan alat kerja, dan mengembalikan sparepart berlebih ke stok inventory gudang", score: 100 },
-        { t: "Membiarkan meja kerja berantakan sampai mekanik yang bersangkutan datang", score: 20 },
-        { t: "Membawa pulang komponen yang dianggap berharga", score: 0 }
-      ]},
-      { q: "Evaluasi kinerja bulanan Anda dinilai perlu peningkatan dalam aspek kecepatan pencarian suku cadang:", opts: [
-        { t: "Merasa tersinggung dan bekerja lebih lambat sebagai bentuk protes", score: 0 },
-        { t: "Menerima masukan secara objektif, menata ulang sistem visual mapping lokasi BIN, dan memperdalam hafalan letak fast-moving", score: 100 },
-        { t: "Menyalahkan rekan tim atas lambatnya alur kerja warehouse", score: 10 },
-        { t: "Menghindari komunikasi dengan supervisor logistik", score: 10 }
-      ]}
-    ];
-
-    const rawModul3 = [
-      { a: "Saya selalu mengutamakan ketepatan administrasi dokumen sesuai prosedur standar sebelum mengambil tindakan.", b: "Saya cenderung berani mengambil inisiatif cepat saat menghadapi kondisi darurat operasional di lapangan." },
-      { a: "Saya merasa lebih nyaman bekerja secara mandiri dengan fokus penuh pada target tugas pribadi.", b: "Saya lebih menikmati bekerja dalam koordinasi kelompok dan aktif bertukar informasi dengan tim." },
-      { a: "Saya selalu merencanakan tahapan kerja harian secara rinci dan terstruktur di awal shift.", b: "Saya terbiasa beradaptasi secara fleksibel dan spontan terhadap perubahan ritme kerja yang tiba-tiba." },
-      { a: "Saya lebih memprioritaskan ketelitian tinggi meskipun membutuhkan waktu penyelesaian sedikit lebih lama.", b: "Saya lebih memprioritaskan kecepatan penyelesaian tugas agar antrian antardivisi segera terurai." },
-      { a: "Saya menyampaikan kritik atau masukan secara langsung, terbuka, dan tegas kepada rekan kerja.", b: "Saya memilih menyampaikan saran secara halus dan menjaga perasaan rekan demi keharmonisan tim." },
-      { a: "Saya terbiasa menyelesaikan tugas sampai tuntas sempurna sebelum beralih ke pekerjaan baru.", b: "Saya terampil mengelola beberapa tugas sekaligus (multitasking) secara bergantian dalam satu waktu." },
-      { a: "Saya berpegang teguh pada aturan tertulis perusahaan dalam setiap pertimbangan keputusan.", b: "Saya mempertimbangkan kondisi kemanusiaan dan fleksibilitas situasi praktis di lapangan." },
-      { a: "Saya menyukai tugas kerja yang memerlukan analisis data, angka, dan logika formula mendalam.", b: "Saya lebih antusias mengerjakan tugas fisik lapangan yang dinamis dan berinteraksi dengan banyak orang." },
-      { a: "Saya cenderung tenang, terkontrol, dan tidak mudah panik saat menghadapi tekanan tenggat waktu.", b: "Saya menunjukkan energi tinggi dan antusiasme terbuka yang mendorong semangat rekan di sekitar." },
-      { a: "Saya lebih memilih lingkungan kerja yang memiliki rutinitas jelas, stabil, dan terprediksi.", b: "Saya menyukai lingkungan kerja yang penuh tantangan baru dan dinamika persoalan variatif." },
-      { a: "Saya selalu memeriksa ulang hasil kerja sendiri minimal dua kali sebelum menyerahkan ke atasan.", b: "Saya percaya diri dengan hasil kerja pertama dan langsung fokus ke target aktivitas berikutnya." },
-      { a: "Saya lebih mendengarkan masukan dan pendapat anggota kelompok sebelum menetapkan langkah.", b: "Saya berani mengambil peran pemimpin untuk mengarahkan alur kerja kelompok sejak awal." },
-      { a: "Saya fokus pada kepatuhan parameter teknis spesifikasi komponen dan standar part number.", b: "Saya fokus pada kecepatan alur distribusi dan kepuasan mekanik unit yang dilayani." },
-      { a: "Saya lebih memilih menyelesaikan perselisihan kerja secara formal melalui jalur koordinasi resmi.", b: "Saya mengajak rekan berdiskusi informal empat mata secara kekeluargaan untuk mencari titik temu." },
-      { a: "Saya berdisiplin tinggi terhadap jadwal istirahat dan penataan area kerja yang rapi konsisten.", b: "Saya memprioritaskan penyelesaian pekerjaan lapangan terlebih dahulu meskipun meja kerja berantakan sementara." },
-      { a: "Saya terbiasa mencatat setiap transaksi logistik secara mendetail pada buku log harian.", b: "Saya lebih mengandalkan rekap digital otomatis pada sistem inventaris modern." },
-      { a: "Saya tidak ragu menolak permintaan yang menyalahi alur standar kerja operasional.", b: "Saya berusaha mencari jalan alternatif kompromi agar operasional tetap jalan tanpa melanggar batasan besar." },
-      { a: "Saya merasa puas ketika berhasil merapikan inventaris fisik gudang dengan tata letak rapi presisi.", b: "Saya merasa puas ketika seluruh pesanan komponen breakdown berhasil terdistribusi tanpa komplain." },
-      { a: "Saya berhati-hati dalam mempercayai data fisik sebelum melakukan verifikasi penghitungan langsung.", b: "Saya membangun kepercayaan penuh pada laporan rekan kerja demi mempercepat efisiensi alur." },
-      { a: "Saya berorientasi pada proses kerja yang benar, aman, dan taat terhadap seluruh regulasi K3LH.", b: "Saya berorientasi pada pencapaian target produktivitas unit dan kepuasan pelanggan internal plant." }
-    ];
-
-    const rawModul4 = [
-      { q: "Seorang mekanik meminta filter oli bekas dari area limbah workshop untuk dipasang sementara ke unit breakdown agar unit bisa bergerak ke bengkel. Langkah terbaik:", opts: [
-        { t: "Mengizinkan karena dalam situasi darurat dan tujuannya hanya memindahkan unit", score: 0 },
-        { t: "Melarang keras penggunaan komponen bekas pakai, menerbitkan filter baru darurat, dan menjelaskan risiko kontaminasi engine", score: 100 },
-        { t: "Menyuruh mekanik mengambil sendiri tanpa melapor ke Foreman", score: 0 },
-        { t: "Mengabaikan karena komponen tersebut sudah berada di tempat sampah", score: 20 }
-      ]},
-      { q: "Saat proses penerimaan solar/oli pelumas drum, segel pengaman pada satu drum terindikasi telah rusak dan volume berkurang 10%. Tindakan Anda:", opts: [
-        { t: "Menerima drum tersebut dan menambahkan oli dari drum lain agar tidak terlihat kurang", score: 0 },
-        { t: "Menolak drum tersebut, membuat Berita Acara Kerusakan/Ketidaksesuaian Segel, dan meminta penggantian vendor resmi", score: 100 },
-        { t: "Menandatangani surat jalan tanpa catatan agar pengiriman selesai cepat", score: 0 },
-        { t: "Menjual sisa oli drum secara pribadi ke pihak luar", score: 0 }
-      ]},
-      { q: "Rekan kerja satu tim kedapatan membawa komponen bearing kecil bernilai tinggi ke dalam tas pribadi saat jam pulang shift:", opts: [
-        { t: "Membiarkan karena merasa tidak enak hati dengan rekan satu mess", score: 0 },
-        { t: "Menegur rekan tersebut secara tegas untuk mengembalikan part ke rak dan melaporkan insiden ke Security/Atasan sesuai regulasi integritas site", score: 100 },
-        { t: "Meminta bagian dari barang tersebut agar tutup mulut", score: 0 },
-        { t: "Menceritakan kejadian ke rekan lain tanpa melapor ke pihak berwenang", score: 20 }
-      ]},
-      { q: "Foreman meminta penandatanganan Berita Acara Penerimaan Barang fiktif karena barang fisik terlambat tiba di pelabuhan demi mengejar target KPI bulanan:", opts: [
-        { t: "Menyetujui demi loyalitas terhadap instruksi pimpinan", score: 0 },
-        { t: "Menolak dengan sopan menandatangani dokumen fiktif, menjelaskan risiko pelanggaran audit, dan menyarankan pelaporan status aktual barang in-transit", score: 100 },
-        { t: "Menandatangani dengan meminta uang kompensasi risiko", score: 0 },
-        { t: "Memalsukan tanda tangan rekan kerja lain", score: 0 }
-      ]},
-      { q: "Anda menemukan bahwa alat pemadam api ringan (APAR) di area penyimpanan oli pelumas telah kedaluwarsa masa berlakunya 2 bulan:", opts: [
-        { t: "Membiarkan selama tidak ada api atau kebakaran", score: 0 },
-        { t: "Memasang label tanda rusak/expired, melaporkan ke Departemen Safety (HSE) untuk pengisian ulang segera, dan memindahkan APAR cadangan aktif", score: 100 },
-        { t: "Menghapus label tanggal kedaluwarsa agar tidak terlihat oleh auditor", score: 0 },
-        { t: "Membuang APAR tersebut ke semak-semak luar pagar", score: 0 }
-      ]},
-      { q: "Truk tronton pengangkut ban alat berat (Giant Tyre OTR) diparkir di turunan area gudang tanpa ganjal roda (wheel chock):", opts: [
-        { t: "Mengabaikan karena sopir truk sudah berpengalaman", score: 0 },
-        { t: "Segera memasang ganjal roda standar, meminta sopir menarik rem parkir penuh, dan mengingatkan standar K3 Golden Rules parkir tambang", score: 100 },
-        { t: "Menunggu truk bergerak sendiri baru bertindak", score: 0 },
-        { t: "Menegur sopir dengan kata-kata kasar", score: 20 }
-      ]},
-      { q: "Terdapat perbedaan part number antara katalog part manual book lama dengan sistem online SAP/ERP untuk filter bahan bakar:", opts: [
-        { t: "Menebak nomor mana pun yang memiliki stok terbanyak di rak", score: 0 },
-        { t: "Memeriksa supersession part number (nomor pengganti resmi pabrikan), mencocokkan spesifikasi fisik komponen, dan mengonfirmasi ke Maintenance Planner", score: 100 },
-        { t: "Memaksa mekanik memasang part yang ukurannya mendekati mirip", score: 0 },
-        { t: "Menolak seluruh pesanan hingga unit breakdown berkepanjangan", score: 20 }
-      ]},
-      { q: "Pengemudi forklift mengoperasikan unit sambil menggunakan ponsel untuk mendengarkan musik di area lorong rak sempit:", opts: [
-        { t: "Membiarkan selama tidak terjadi tabrakan", score: 0 },
-        { t: "Meminta operator menghentikan forklift, mengingatkan larangan pengalihan fokus saat mengemudi alat berat, dan melapor ke Pengawas jika diulang", score: 100 },
-        { t: "Ikut mendengarkan musik bersama operator", score: 0 },
-        { t: "Melempari forklift dengan batu kecil dari kejauhan", score: 0 }
-      ]},
-      { q: "Vendor menawarkan bingkisan uang tunai pribadi sebagai tanda terima kasih karena berkas tagihannya diproses lebih awal:", opts: [
-        { t: "Menerima uang tersebut karena tidak ada saksi yang melihat", score: 0 },
-        { t: "Menolak gratifikasi secara tegas dan sopan, menjelaskan kebijakan zero-tolerance terhadap suap di PT KTC, dan memproses berkas sesuai antrean wajar", score: 100 },
-        { t: "Menerima uang tetapi membagi-bagikannya ke rekan kerja lain", score: 0 },
-        { t: "Meminta tambahan uang tunai yang lebih besar", score: 0 }
-      ]},
-      { q: "Minyak oli pelumas bekas (B3) diisi ke dalam jeriken tanpa label simbol bahaya limbah:", opts: [
-        { t: "Membiarkan jeriken tersebut tergeletak di samping bengkel", score: 0 },
-        { t: "Memindahkan jeriken ke Tempat Penampungan Sementara Limbah B3 berizin, menempelkan stiker label simbol B3 resmi, dan mencatat log mutasi limbah", score: 100 },
-        { t: "Membuang limbah oli tersebut ke parit drainase air hujan", score: 0 },
-        { t: "Menggunakan oli bekas untuk membakar sampah kering", score: 0 }
-      ]},
-      { q: "Seorang pekerja tambang memasuki area gudang tanpa menggunakan rompi reflektor (high-visibility vest) dan safety shoes:", opts: [
-        { t: "Mengizinkan masuk jika pekerja tersebut hanya bertamu 5 menit", score: 0 },
-        { t: "Menahan pekerja di batas garis aman, menjelaskan kewajiban penggunaan APD lengkap di area operasional, dan meminjamkan APD tamu jika tersedia", score: 100 },
-        { t: "Membiarkan saja karena pekerja tersebut berbadan kekar", score: 0 },
-        { t: "Mengusir pekerja dengan nada merendahkan", score: 30 }
-      ]},
-      { q: "Ditemukan bahwa stok fisik ban unit Hauler 777 tercatat selisih 1 unit di sistem komputer karena kesalahan input kode gudang transit:", opts: [
-        { t: "Mengubah angka fisik di sistem menjadi 0 tanpa dasar pelacakan", score: 0 },
-        { t: "Menelusuri riwayat nomor Surat Tanda Kirim (STK), mencocokkan fisik di yard transit, dan menerbitkan Berita Acara Koreksi Data inventaris", score: 100 },
-        { t: "Menyalahkan petugas shift malam atas selisih data", score: 10 },
-        { t: "Menutup gudang ban dan menolak melayani unit hauler", score: 10 }
-      ]},
-      { q: "Tali sling kawat pengangkat (wire rope sling) memiliki lebih dari 3 kawat putus pada satu pilinan (strand):", opts: [
-        { t: "Tetap menggunakan sling tersebut untuk beban ringan di bawah 500 kg", score: 0 },
-        { t: "Memotong dan mengkarantina sling rusak agar tidak digunakan lagi (Reject/Scrap), lalu mengganti dengan sling bersertifikat inspeksi aktif", score: 100 },
-        { t: "Menyembunyikan bagian kawat yang putus dengan lakban hitam", score: 0 },
-        { t: "Mengembalikan sling ke rak penyimpanan alat kerja", score: 0 }
-      ]},
-      { q: "Seorang mekanik magang diminta senior untuk memanjat rak penyimpanan tingkat 4 tanpa menggunakan tangga keselamatan kerja:", opts: [
-        { t: "Membiarkan karena menganggap proses magang harus berani menghadapi bahaya", score: 0 },
-        { t: "Menghentikan tindakan berbahaya tersebut, menyediakan tangga platform keselamatan kerja (safety steps), dan menegur senior yang memberi instruksi", score: 100 },
-        { t: "Menyemangati mekanik magang untuk memanjat lebih cepat", score: 0 },
-        { t: "Memfoto kejadian untuk ditertawakan di mess", score: 0 }
-      ]},
-      { q: "Sistem pendeteksi asap (smoke detector) di ruang genset cadangan gudang berbunyi alarm palsu berkala:", opts: [
-        { t: "Melepas baterai alarm agar ruangan tidak berisik", score: 0 },
-        { t: "Memeriksa potensi percikan api/panas berlebih, mengisolasi area, dan segera memanggil teknisi elektrikal untuk kalibrasi sensor sistem kebakaran", score: 100 },
-        { t: "Menutup sensor dengan kantong plastik agar tidak peka", score: 0 },
-        { t: "Mengabaikan alarm hingga jam kerja shift berakhir", score: 0 }
-      ]}
-    ];
-
-    const rawModul5 = [
-      { q: "Jika rumus di sel C1 adalah '=A1+B1', saat disalin (copy-paste) ke sel D2, rumus tersebut otomatis berubah menjadi:", opts: [
-        { t: "=A2+B2", score: 0 },
-        { t: "=B2+C2", score: 100 },
-        { t: "=B1+C1", score: 0 },
-        { t: "=C2+D2", score: 0 }
-      ]},
-      { q: "Untuk mencari harga satuan part dari tabel master referensi berdasarkan part number di kolom A, rumus spreadsheet yang tepat adalah:", opts: [
-        { t: "=SUMIF(Part_Master!A:B; A2; 2)", score: 0 },
-        { t: "=VLOOKUP(A2; Part_Master!A:E; 4; FALSE)", score: 100 },
-        { t: "=COUNTIF(Part_Master!A:E; A2)", score: 0 },
-        { t: "=CONCATENATE(A2; 4)", score: 0 }
-      ]},
-      { q: "Terdapat 15 drum oli engine berkapasitas 209 liter per drum. Jika pemakaian per minggu adalah 627 liter, total stok drum tersebut habis dalam waktu:", opts: [
-        { t: "4 minggu", score: 0 },
-        { t: "5 minggu (15 x 209 / 627)", score: 100 },
-        { t: "6 minggu", score: 0 },
-        { t: "7 minggu", score: 0 }
-      ]},
-      { q: "Formula untuk menghitung jumlah baris yang memiliki nilai stok lebih besar dari 10 pada rentang B2:B100 adalah:", opts: [
-        { t: "=SUM(B2:B100 > 10)", score: 0 },
-        { t: "=COUNTIF(B2:B100; \">10\")", score: 100 },
-        { t: "=AVERAGEIF(B2:B100; 10)", score: 0 },
-        { t: "=MAXIF(B2:B100; \">10\")", score: 0 }
-      ]},
-      { q: "Stok awal filter udara 45 pcs. Penerimaan masuk 120 pcs. Pengeluaran ke workshop 88 pcs. Retur sisa part dari mekanik ke gudang 3 pcs. Sisa stok fisik akhir:", opts: [
-        { t: "74 pcs", score: 0 },
-        { t: "80 pcs (45 + 120 - 88 + 3)", score: 100 },
-        { t: "77 pcs", score: 0 },
-        { t: "83 pcs", score: 0 }
-      ]},
-      { q: "Perhatikan tabel mutasi stok berikut:\nBerapa total nilai rupiah dari pengeluaran filter oli?", tableData: [
-        ["Part Name", "Qty Keluar", "Harga Satuan"],
-        ["Filter Oli LF9009", "12 pcs", "Rp 250.000"],
-        ["Filter Solar FF5052", "8 pcs", "Rp 175.000"]
-      ], opts: [
-        { t: "Rp 2.000.000", score: 0 },
-        { t: "Rp 3.000.000 (12 x 250.000)", score: 100 },
-        { t: "Rp 1.400.000", score: 0 },
-        { t: "Rp 4.400.000", score: 0 }
-      ]},
-      { q: "Rumus spreadsheet untuk mengunci referensi sel baris dan kolom secara mutlak (absolut) menggunakan tanda dollar:", opts: [
-        { t: "$A1", score: 0 },
-        { t: "$A$1", score: 100 },
-        { t: "A$1", score: 0 },
-        { t: "A1$", score: 0 }
-      ]},
-      { q: "Sebuah rol selang hidrolik panjangnya 50 meter. Diperlukan pemotongan 4 selang berukuran 3,5 meter dan 6 selang berukuran 4,2 meter. Berapa meter sisa selang pada rol?", opts: [
-        { t: "10,8 meter (50 - 14 - 25,2)", score: 100 },
-        { t: "12,2 meter", score: 0 },
-        { t: "14,5 meter", score: 0 },
-        { t: "8,6 meter", score: 0 }
-      ]},
-      { q: "Jika sel B5 bernilai 0 (kosong) dan sel C5 bernilai 50, maka hasil rumus '=IF(B5>0; C5/B5; \"Stok Kosong\")' adalah:", opts: [
-        { t: "#DIV/0!", score: 0 },
-        { t: "\"Stok Kosong\"", score: 100 },
-        { t: "0", score: 0 },
-        { t: "50", score: 0 }
-      ]},
-      { q: "Sebuah palet kayu mampu menampung beban maksimum 1,2 ton. Jika satu kardus track bolt beratnya 25 kg, berapa kardus maksimum yang dapat dimuat?", opts: [
-        { t: "40 kardus", score: 0 },
-        { t: "48 kardus (1200 / 25)", score: 100 },
-        { t: "52 kardus", score: 0 },
-        { t: "60 kardus", score: 0 }
-      ]},
-      { q: "Fungsi spreadsheet untuk menggabungkan teks dari sel A2 (\"CAT\") dan sel B2 (\"336D\") dengan tanda hubung adalah:", opts: [
-        { t: "=A2 & \"-\" & B2", score: 100 },
-        { t: "=SUM(A2; B2)", score: 0 },
-        { t: "=MERGE(A2; \"-\"; B2)", score: 0 },
-        { t: "=JOIN(A2; B2; \"-\")", score: 0 }
-      ]},
-      { q: "Total konsumsi solar genset site selama 30 hari adalah 18.000 liter. Rata-rata konsumsi per jam (genset beroperasi 24 jam nonstop) adalah:", opts: [
-        { t: "20 liter/jam", score: 0 },
-        { t: "25 liter/jam (18000 / 720)", score: 100 },
-        { t: "30 liter/jam", score: 0 },
-        { t: "35 liter/jam", score: 0 }
-      ]},
-      { q: "Shortcut keyboard untuk membuat filter otomatis (AutoFilter) pada header tabel data spreadsheet adalah:", opts: [
-        { t: "Ctrl + F", score: 0 },
-        { t: "Ctrl + Shift + L", score: 100 },
-        { t: "Ctrl + P", score: 0 },
-        { t: "Ctrl + Z", score: 0 }
-      ]},
-      { q: "Jika lead time barang 14 hari, pemakaian rata-rata 3 unit/hari, dan safety stock 10 unit, maka Re-Order Point (ROP = (Lead Time x Pemakaian) + Safety Stock) adalah:", opts: [
-        { t: "42 unit", score: 0 },
-        { t: "52 unit (14 x 3 + 10)", score: 100 },
-        { t: "62 unit", score: 0 },
-        { t: "32 unit", score: 0 }
-      ]},
-      { q: "Hasil dari operasi formula spreadsheet '=ROUND(154.678; 1)' adalah:", opts: [
-        { t: "154,6", score: 0 },
-        { t: "154,7", score: 100 },
-        { t: "155", score: 0 },
-        { t: "154,68", score: 0 }
-      ]}
-    ];
-
-    const rawModul6 = {
-      storeman: [
-        { q: "Prinsip dasar rotasi inventaris barang fast-moving seperti filter dan pelumas di gudang suku cadang adalah FIFO, yang berarti:", opts: [
-          { t: "Fast In Fast Out (Barang cepat datang cepat keluar)", score: 0 },
-          { t: "First In First Out (Barang yang masuk pertama harus dikeluarkan pertama untuk menghindari kedaluwarsa)", score: 100 },
-          { t: "Final Inventory Final Order", score: 0 },
-          { t: "Fixed In Fixed Out", score: 0 }
-        ]},
-        { q: "Sistem pengalamatan lokasi rak gudang 'A-02-03-B' umumnya memiliki arti penataan:", opts: [
-          { t: "Blok A, Rak nomor 02, Tingkat/Level 03, Kotak BIN B", score: 100 },
-          { t: "Nomor part A, berat 2 kg, harga 3 dollar, jenis B", score: 0 },
-          { t: "Gudang Area A tanggal 2 Maret jenis barang B", score: 0 },
-          { t: "Nama staf gudang A shift 2", score: 0 }
-        ]},
-        { q: "Sebelum menyerahkan komponen kritis berharga tinggi ke mekanik, dokumen wajib yang harus terverifikasi adalah:", opts: [
-          { t: "Kuitansi pembelian toko terdekat", score: 0 },
-          { t: "Material Issue Slip (MIS) atau Work Order yang telah ditandatangani Supervisor Plant yang berwenang", score: 100 },
-          { t: "Foto KTP operator", score: 0 },
-          { t: "Kartu izin mengemudi SIMper", score: 0 }
-        ]},
-        { q: "Komponen bearing presisi tinggi harus disimpan dengan ketentuan:", opts: [
-          { t: "Dilepas bungkus plastiknya dan dijemur di bawah matahari", score: 0 },
-          { t: "Tetap dalam kemasan kedap udara anti-karat, diletakkan mendatar di tempat kering dan bebas getaran", score: 100 },
-          { t: "Direndam dalam air sabun", score: 0 },
-          { t: "Ditumpuk bersama besi rongsokan", score: 0 }
-        ]},
-        { q: "Apa tindakan Anda jika part number fisik barang tidak terbaca karena stiker kemasan basah/rusak?", opts: [
-          { t: "Menebak nomor part yang paling mirip", score: 0 },
-          { t: "Mencocokkan dimensi fisik dengan part catalog master, memeriksa nomor casting pabrikan, dan membuat label barcode baru", score: 100 },
-          { t: "Membuang barang tersebut ke tong sampah", score: 0 },
-          { t: "Menyerahkan barang tanpa label ke mekanik", score: 0 }
-        ]},
-        { q: "Alat bantu penanganan material (Material Handling Equipment) yang paling tepat untuk memindahkan drum oli 200L adalah:", opts: [
-          { t: "Didorong dan digelindingkan dengan kaki di lantai bebatuan", score: 0 },
-          { t: "Drum grabber pada forklift atau troli khusus drum berpenjepit safety", score: 100 },
-          { t: "Ditarik menggunakan tambang plastik", score: 0 },
-          { t: "Diangkat manual oleh satu orang", score: 0 }
-        ]},
-        { q: "Kartu stok fisik (BIN Card) yang tergantung pada setiap kotak penyimpanan berfungsi untuk:", opts: [
-          { t: "Hiasan dinding gudang", score: 0 },
-          { t: "Mencatat riwayat mutasi masuk, keluar, nomor referensi bukti transaksi, dan sisa saldo fisik barang secara langsung di rak", score: 100 },
-          { t: "Tempat tanda tangan absensi kehadiran", score: 0 },
-          { t: "Menulis pesan pribadi antarkaryawan", score: 0 }
-        ]},
-        { q: "Jika terjadi selisih stok negatif (stok fisik lebih sedikit dibanding sistem), formulir formal yang dibuat adalah:", opts: [
-          { t: "Surat izin sakit", score: 0 },
-          { t: "Berita Acara Rekonsiliasi Selisih Stok (Stock Adjustment Report)", score: 100 },
-          { t: "Surat peringatan vendor", score: 0 },
-          { t: "Faktur pajak", score: 0 }
-        ]},
-        { q: "Penyimpanan baterai aki (battery acid) di gudang logistik wajib memperhatikan:", opts: [
-          { t: "Disimpan berdekatan dengan tabung gas asetilen", score: 0 },
-          { t: "Ruangan berventilasi baik, lantai tahan asam (acid resistant), terhindar dari percikan api, dan rak tidak konduktif", score: 100 },
-          { t: "Ditumpuk 8 tingkat", score: 0 },
-          { t: "Dibalik posisinya agar tidak tumpah", score: 0 }
-        ]},
-        { q: "Apa kepanjangan dari MSDS yang wajib ada di setiap lokasi penyimpanan bahan kimia / pelumas tambang?", opts: [
-          { t: "Material Safety Data Sheet (Lembar Data Keselamatan Bahan)", score: 100 },
-          { t: "Mining Standard Delivery System", score: 0 },
-          { t: "Modern Stock Distribution Standard", score: 0 },
-          { t: "Mechanical Safety Device Sensor", score: 0 }
-        ]},
-        { q: "Tingkat kebersihan dan kerapian gudang suku cadang tambang mengacu pada budaya kerja 5R (5S), yaitu:", opts: [
-          { t: "Ringkas, Rapi, Resik, Rawat, Rajin", score: 100 },
-          { t: "Rombak, Rusak, Ralat, Rendah, Ragu", score: 0 },
-          { t: "Rapat, Rutin, Rinci, Rencana, Realisasi", score: 0 },
-          { t: "Rata, Relatif, Ragu, Resmi, Riuh", score: 0 }
-        ]},
-        { q: "Saat menerima kiriman barang dari ekspedisi, dokumen awal yang pertama kali ditandatangani adalah:", opts: [
-          { t: "Surat Jalan / Delivery Order (DO) ekspedisi setelah memeriksa jumlah koli dan keutuhan segel kemasan", score: 100 },
-          { t: "Sertifikat garansi unit", score: 0 },
-          { t: "Laporan pajak tahunan", score: 0 },
-          { t: "Surat pemutusan kontrak", score: 0 }
-        ]},
-        { q: "Komponen karet seperti O-ring dan hydraulic seal kit rentan mengalami kerusakan jika terkena paparan langsung:", opts: [
-          { t: "Sinar ultraviolet (matahari langsung), suhu panas ekstrem, dan minyak ozon", score: 100 },
-          { t: "Ruangan berpendingin udara (AC)", score: 0 },
-          { t: "Laci plastik tertutup", score: 0 },
-          { t: "Kantong bersegel vakum", score: 0 }
-        ]},
-        { q: "Stock Opname berkala di gudang logistik tambang bertujuan utama untuk:", opts: [
-          { t: "Membuat karyawan lembur dan kelelahan", score: 0 },
-          { t: "Mengetahui akurasi antara data saldo buku/sistem dengan kuantitas fisik riil di rak serta kondisi kualitas part", score: 100 },
-          { t: "Menghabiskan anggaran bulanan departemen", score: 0 },
-          { t: "Memindahkan barang ke gudang lain", score: 0 }
-        ]},
-        { q: "Penanganan barang slow-moving atau dead stock di gudang logistik yang tepat adalah:", opts: [
-          { t: "Dibuang ke sungai tambang secara diam-diam", score: 0 },
-          { t: "Diberi label identifikasi jelas, dilaporkan daftarnya ke Plant Management untuk evaluasi scrapping atau retur ke principal", score: 100 },
-          { t: "Disembunyikan di bawah meja agar tidak terlihat", score: 0 },
-          { t: "Diberikan secara gratis kepada orang luar", score: 0 }
-        ]}
-      ],
-      warehouse: [
-        { q: "Tata letak layout gudang logistik alat berat (Heavy Equipment Parts Warehouse) harus dirancang dengan fokus pada:", opts: [
-          { t: "Kecepatan akses barang fast-moving dekat pintu staging dan keamanan manuver forklift di lorong rak", score: 100 },
-          { t: "Penumpukan barang setinggi mungkin tanpa memedulikan batas aman", score: 0 },
-          { t: "Menutup seluruh ventilasi udara agar debu tidak masuk", score: 0 },
-          { t: "Membuat lorong berliku-liku agar muatan tidak terlihat", score: 0 }
-        ]},
-        { q: "Toleransi selisih akurasi inventaris (Inventory Record Accuracy - IRA) standar pergudangan modern tambang adalah minimal:", opts: [
-          { t: "50% - 60%", score: 0 },
-          { t: "98% - 100%", score: 100 },
-          { t: "70% - 80%", score: 0 },
-          { t: "85% - 90%", score: 0 }
-        ]},
-        { q: "Metode Cycle Counting dalam manajemen persediaan pergudangan adalah:", opts: [
-          { t: "Menghitung fisik barang setiap tahun sekali saja", score: 0 },
-          { t: "Penghitungan fisik berkala terjadwal pada subset item tertentu secara kontinu tanpa menghentikan operasional gudang", score: 100 },
-          { t: "Menghitung barang hanya saat terjadi barang hilang", score: 0 },
-          { t: "Menghitung kecepatan putaran roda forklift", score: 0 }
-        ]},
-        { q: "Dalam penataan palet di racking bertingkat, penempatan barang berbobot paling berat harus berada di:", opts: [
-          { t: "Tingkat paling atas agar mudah dilihat", score: 0 },
-          { t: "Tingkat paling bawah (lantai dasar) untuk menjaga stabilitas struktur rak (Center of Gravity rendah)", score: 100 },
-          { t: "Tergantung selera operator forklift", score: 0 },
-          { t: "Dikeluarkan dari gudang", score: 0 }
-        ]},
-        { q: "Apa fungsi dari buffer stock (safety stock) dalam rantai pasok logistik tambang site terpencil?", opts: [
-          { t: "Sebagai cadangan penyangga untuk mengantisipasi lonjakan konsumsi tak terduga atau keterlambatan pengiriman kapal/logistik", score: 100 },
-          { t: "Hanya untuk menghabiskan ruang kosong di rak", score: 0 },
-          { t: "Untuk dijual ke tambang tetangga", score: 0 },
-          { t: "Tidak memiliki fungsi penting", score: 0 }
-        ]},
-        { q: "Dokumen manifest pengiriman barang antar site (Transfer Order) wajib memuat informasi:", opts: [
-          { t: "Nomor part, deskripsi, kuantitas, nomor seri unit tujuan, tanggal kirim, dan tanda tangan ekspedisi resmi", score: 100 },
-          { t: "Prakiraan cuaca esok hari", score: 0 },
-          { t: "Daftar harga makanan kantin mess", score: 0 },
-          { t: "Surat kelakuan baik pengemudi", score: 0 }
-        ]},
-        { q: "Kondisi palet kayu yang retak atau paku menonjol harus ditangani dengan:", opts: [
-          { t: "Tetap dimuat barang berat", score: 0 },
-          { t: "Diberi tanda 'Reject', tidak boleh dipakai lagi, dan diganti palet standar yang layak uji beban", score: 100 },
-          { t: "Dibalik posisinya agar retak berada di bawah", score: 0 },
-          { t: "Diikat dengan tali rafia tipis", score: 0 }
-        ]},
-        { q: "Peralatan perlindungan diri (APD) wajib bagi staf pergudangan di area staging forklift meliputi:", opts: [
-          { t: "Safety helmet, safety shoes bertutup baja, rompi high-visibility, dan sarung tangan kerja", score: 100 },
-          { t: "Sandal jepit dan topi santai", score: 0 },
-          { t: "Baju renang dan kacamata hitam", score: 0 },
-          { t: "Sepatu olahraga tanpa pelindung jari", score: 0 }
-        ]},
-        { q: "Dalam penanganan drum oli di layout terbuka, drum sebaiknya diposisikan:", opts: [
-          { t: "Tegak lurus saat hujan tanpa penutup", score: 0 },
-          { t: "Horisontal pada rak khusus drum atau miring dengan posisi kedua lubang (bung) sejajar horizontal arah jam 3 dan 9", score: 100 },
-          { t: "Dibalik dengan tutup menempel tanah", score: 0 },
-          { t: "Ditumpuk berdiri 6 tingkat", score: 0 }
-        ]},
-        { q: "Jika mendapati barang kiriman berlebih (over delivery) yang tidak tercantum dalam Purchase Order (PO):", opts: [
-          { t: "Disimpan diam-diam untuk persediaan pribadi", score: 0 },
-          { t: "Dicatat sebagai over-shipment, dikarantina di area holding, dan dikonfirmasikan ke departemen Procurement/Purchasing", score: 100 },
-          { t: "Dibuang ke semak-semak", score: 0 },
-          { t: "Langsung dimasukkan ke rak stok umum", score: 0 }
-        ]},
-        { q: "Alur proses retur komponen rusak dari workshop ke gudang untuk klaim garansi vendor disebut:", opts: [
-          { t: "Warranty Return Procedure", score: 100 },
-          { t: "Cash on Delivery", score: 0 },
-          { t: "Direct Sale", score: 0 },
-          { t: "Scrap Purchase", score: 0 }
-        ]},
-        { q: "Batas kecepatan maksimum pergerakan forklift di dalam lorong gudang tertutup tambang umumnya adalah:", opts: [
-          { t: "5 - 10 km/jam", score: 100 },
-          { t: "40 - 50 km/jam", score: 0 },
-          { t: "60 - 80 km/jam", score: 0 },
-          { t: "Bebas tanpa batasan kecepatan", score: 0 }
-        ]},
-        { q: "Barang kategori 'Consumable' di warehouse operasional tambang meliputi:", opts: [
-          { t: "Kawat las, sarung tangan, majun, cairan pembersih rem, lakban, dan mata gerinda", score: 100 },
-          { t: "Engine excavator utuh", score: 0 },
-          { t: "Kabin dump truck", score: 0 },
-          { t: "Boom arm assembly", score: 0 }
-        ]},
-        { q: "Inspeksi harian pra-operasional forklift (P2H) mencakup pemeriksaan:", opts: [
-          { t: "Klakson, lampu kerja, sistem rem, kebocoran oli hidrolik, kondisi garpu (fork), dan rantai pengangkat", score: 100 },
-          { t: "Sistem audio musik dan pendingin minuman", score: 0 },
-          { t: "Warna stiker bodi luar saja", score: 0 },
-          { t: "Kekuatan sinyal Wi-Fi di mess", score: 0 }
-        ]},
-        { q: "Penerapan sistem barcode / QR-code scanning pada saat picking barang bertujuan untuk:", opts: [
-          { t: "Mengurangi kesalahan pengambilan barang (human error) dan memperbarui saldo stok di sistem secara real-time", score: 100 },
-          { t: "Membuat pekerjaan semakin rumit dan lambat", score: 0 },
-          { t: "Menghabiskan daya baterai perangkat scanner", score: 0 },
-          { t: "Menghapus kebutuhan petugas gudang sama sekali", score: 0 }
-        ]}
-      ],
-      workshop: [
-        { q: "Alat ukur presisi vernier caliper (jangka sorong) dan mikrometer digunakan di workshop plant untuk:", opts: [
-          { t: "Mengukur diameter poros pin, ketebalan disc brake, dan keausan bushing dengan tingkat presisi milimeter hingga mikron", score: 100 },
-          { t: "Mengukur panjang lintasan jalan hauling tambang", score: 0 },
-          { t: "Menimbang berat beban oli drum", score: 0 },
-          { t: "Mengukur volume tangki solar", score: 0 }
-        ]},
-        { q: "Prosedur penguncian sumber energi berbahaya sebelum melakukan perbaikan unit alat berat dikenal dengan:", opts: [
-          { t: "LOTO (Lockout / Tagout)", score: 100 },
-          { t: "SOP KTP", score: 0 },
-          { t: "P2H Harian", score: 0 },
-          { t: "ERP SAP", score: 0 }
-        ]},
-        { q: "Saat mengencangkan baut silinder head engine atau sambungan track link, alat pengencang yang wajib dipakai adalah:", opts: [
-          { t: "Kunci inggris biasa", score: 0 },
-          { t: "Kunci torsi (Torque Wrench) yang terkalibrasi sesuai nilai spesifikasi pabrikan", score: 100 },
-          { t: "Palu besi dan pahat tumpul", score: 0 },
-          { t: "Obeng minus", score: 0 }
-        ]},
-        { q: "Komponen sistem hidrolik alat berat yang berfungsi mencegah tekanan berlebih pada sirkuit utama adalah:", opts: [
-          { t: "Main Relief Valve", score: 100 },
-          { t: "Oil Filter", score: 0 },
-          { t: "Hydraulic Tank", score: 0 },
-          { t: "Level Gauge", score: 0 }
-        ]},
-        { q: "Penyebab utama terjadinya kavitasi pada pompa hidrolik alat berat adalah:", opts: [
-          { t: "Masuknya udara atau pembentukan gelembung uap akibat restriksi saluran hisap / level oli hidrolik terlalu rendah", score: 100 },
-          { t: "Oli hidrolik terlalu dingin dan baru", score: 0 },
-          { t: "Baut pompa terlalu kencang", score: 0 },
-          { t: "Warna cat pompa terkelupas", score: 0 }
-        ]},
-        { q: "Pengambilan sampel oli berkala (Scheduled Oil Sampling - SOS) dianalisis di laboratorium untuk mendeteksi:", opts: [
-          { t: "Kandungan partikel keausan logam (wear metals), tingkat viskositas, kontaminasi debu silika, dan sisa bahan bakar/air", score: 100 },
-          { t: "Harga pasaran oli di masa depan", score: 0 },
-          { t: "Nama mekanik yang mengisi oli", score: 0 },
-          { t: "Kekuatan aroma parfum oli", score: 0 }
-        ]},
-        { q: "Alat Special Application Tools (SST) yang tepat untuk melepas bearing atau gear dari poros tanpa merusak komponen adalah:", opts: [
-          { t: "Puller (Bearing / Gear Puller)", score: 100 },
-          { t: "Gergaji besi", score: 0 },
-          { t: "Pahat dan godam besar", score: 0 },
-          { t: "Mesin gerinda potong", score: 0 }
-        ]},
-        { q: "Fungsi dari turbocharger pada engine diesel alat berat pertambangan adalah:", opts: [
-          { t: "Memampatkan udara masuk ke ruang bakar menggunakan tenaga gas buang sehingga meningkatkan efisiensi dan tenaga engine", score: 100 },
-          { t: "Mendinginkan air radiator", score: 0 },
-          { t: "Menyaring kotoran solar di tangki", score: 0 },
-          { t: "Mengisi arus listrik ke baterai", score: 0 }
-        ]},
-        { q: "Warna asap gas buang engine diesel berwarna hitam pekat umumnya mengindikasikan masalah pada:", opts: [
-          { t: "Campuran bahan bakar terlalu kaya / pasokan udara kurang (filter udara tersumbat, injector aus, atau turbo rusak)", score: 100 },
-          { t: "Air pendingin masuk ke ruang bakar", score: 0 },
-          { t: "Oli terbakar sempurna", score: 0 },
-          { t: "Kondisi engine sangat normal", score: 0 }
-        ]},
-        { q: "Pembersihan part komponen presisi seperti spool control valve hidrolik wajib menggunakan cairan pembersih:", opts: [
-          { t: "Air deterjen bersabun dan dijemur terbuka", score: 0 },
-          { t: "Pelarut khusus (cleaner solvent) yang cepat kering tanpa meninggalkan residu serat/kotoran", score: 100 },
-          { t: "Minyak tanah kotor bekas rendaman baut", score: 0 },
-          { t: "Cairan asam pekat aki", score: 0 }
-        ]},
-        { q: "Tindakan keselamatan yang wajib dilakukan sebelum melakukan pekerjaan pengelasan pada unit alat berat adalah:", opts: [
-          { t: "Mematikan engine dan memutus sakelar utama baterai (Disconnect Battery Isolator Switch / lepas kabel aki)", score: 100 },
-          { t: "Menyiram tangki solar dengan air", score: 0 },
-          { t: "Mengecat bodi unit terlebih dahulu", score: 0 },
-          { t: "Membuka seluruh kaca kabin", score: 0 }
-        ]},
-        { q: "Berapa tekanan angin ban alat berat Hauler yang wajib diperiksa sebelum beroperasi di pit?", opts: [
-          { t: "Sesuai rekomendasi dingin (cold pressure) pabrikan pada manual sheet pemeliharaan ban", score: 100 },
-          { t: "Ditiup dengan mulut mekanik", score: 0 },
-          { t: "Diisi setinggi mungkin hingga ban meregang keras", score: 0 },
-          { t: "Dibiarkan kempes agar empuk", score: 0 }
-        ]},
-        { q: "Komponen undercarriage pada excavator yang menopang rantai track di bagian atas agar tidak kendur adalah:", opts: [
-          { t: "Carrier Roller (Top Roller)", score: 100 },
-          { t: "Track Shoe", score: 0 },
-          { t: "Sprocket", score: 0 },
-          { t: "Bucket Tooth", score: 0 }
-        ]},
-        { q: "Jika indikator temperatur air pendingin (coolant) engine menunjukkan overheat pada panel instrumen:", opts: [
-          { t: "Langsung membuka tutup radiator saat air masih mendidih", score: 0 },
-          { t: "Mengurangi beban, membiarkan engine idle rendah beberapa menit untuk sirkulasi pendinginan, lalu matikan dan periksa level air setelah dingin", score: 100 },
-          { t: "Menyiram blok mesin panas dengan air es secara mendadak", score: 0 },
-          { t: "Mengabaikan indikator sampai mesin meledak", score: 0 }
-        ]},
-        { q: "Perawatan preventif (Preventive Maintenance - PM) unit alat berat di tambang biasanya dijadwalkan berdasarkan:", opts: [
-          { t: "Jam operasi mesin (Service Meter Units / Hour Meter)", score: 100 },
-          { t: "Tanggal ulang tahun operator", score: 0 },
-          { t: "Ketika mesin sudah mogok di tengah jalan", score: 0 },
-          { t: "Siklus pasang surut air laut", score: 0 }
-        ]}
-      ]
-    };
-
+    // ------------------------------------------
+    // RENDERING KONTEN MODUL 1 S.D. 6
+    // ------------------------------------------
     function renderCurrentModuleContent(tab) {
       const container = document.getElementById('moduleContentContainer');
       let html = '';
@@ -2374,55 +1454,48 @@
       if (tab === 1) {
         html += '<div class="border-b border-slate-100 pb-3">' +
           '<span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 tracking-wider">' +
-          'Sesi 1 &bull; Verifikasi Pasangan Data (50 Butir &bull; Durasi 18 Menit)' +
+          'Sesi 1 &bull; Verifikasi Pasangan Data (' + rawModul1.length + ' Butir &bull; Durasi 18 Menit)' +
           '</span>' +
-          '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Pencocokan Kode Alfanumerik Part Number &amp; Dokumen Lapangan</h3>' +
-          '<p class="text-xs text-slate-500">Periksa kedua deret kode di bawah secara cermat. Tekan tombol <strong>SAMA</strong> jika identik persis, atau <strong>BERBEDA</strong> jika terdapat perbedaan karakter, spasi, atau angka.</p>' +
+          '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Uji Ketelitian &amp; Verifikasi Data Alfanumerik</h3>' +
+          '<p class="text-xs text-slate-500">Bandingkan kode Kolom A dan B secara cermat. Tekan <strong>SAMA</strong> jika identik persis, atau <strong>BERBEDA</strong> jika terdapat selisih huruf, angka, atau spasi.</p>' +
           '</div>' +
-          '<div class="space-y-2.5 pt-2">';
+          '<div class="space-y-3 pt-2">';
 
-        rawModul1.forEach((item, idx) => {
+        rawModul1.forEach((pair, idx) => {
           const qId = 'm1_' + idx;
-          const currentAns = candidateData.answers[qId];
+          const userAns = candidateData.answers[qId];
           const isFlagged = candidateData.flagged[qId] === true;
-          const isSameActive = currentAns === true;
-          const isDiffActive = currentAns === false;
-
-          const sameBtnClass = isSameActive ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-500' : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50';
-          const diffBtnClass = isDiffActive ? 'bg-amber-600 text-white shadow-sm ring-2 ring-amber-500' : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50';
           const flagBtnClass = isFlagged ? 'bg-amber-100 text-amber-800 border-amber-300 font-bold' : 'bg-slate-100 text-slate-400 hover:text-amber-600 border-slate-200';
 
-          html += '<div id="qcard_1_' + idx + '" class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/70 hover:border-slate-300 transition flex flex-col md:flex-row md:items-center justify-between gap-3">' +
-            '<div class="flex items-center gap-3">' +
+          html += '<div id="qcard_1_' + idx + '" class="p-3.5 sm:p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">' +
+            '<div class="flex items-start gap-2.5 flex-1 min-w-0">' +
+            '<span class="shrink-0 w-7 h-7 rounded-lg bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center border border-slate-300 font-mono-code">#' + (idx + 1) + '</span>' +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1 min-w-0 font-mono-code text-xs sm:text-sm">' +
+            '<div class="p-2.5 bg-white rounded-xl border border-slate-200 truncate"><span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider mb-0.5">Kolom A</span><span class="font-bold text-slate-900">' + pair[0] + '</span></div>' +
+            '<div class="p-2.5 bg-white rounded-xl border border-slate-200 truncate"><span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider mb-0.5">Kolom B</span><span class="font-bold text-slate-900">' + pair[1] + '</span></div>' +
+            '</div>' +
+            '</div>' +
+            '<div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center">' +
+            '<button type="button" onclick="recordM1Answer(' + idx + ', true)" class="px-4 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-1 ' + (userAns === true ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100') + '">' +
+            '<i class="fa-solid fa-check text-[11px]"></i><span>SAMA</span>' +
+            '</button>' +
+            '<button type="button" onclick="recordM1Answer(' + idx + ', false)" class="px-4 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-1 ' + (userAns === false ? 'bg-red-600 text-white border-red-600 shadow-xs' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100') + '">' +
+            '<i class="fa-solid fa-xmark text-[11px]"></i><span>BERBEDA</span>' +
+            '</button>' +
             '<button type="button" onclick="toggleFlagQuestion(' + idx + ')" title="Tandai Ragu-ragu" class="w-8 h-8 rounded-xl border flex items-center justify-center transition ' + flagBtnClass + '">' +
             '<i class="fa-solid fa-bookmark text-xs"></i>' +
             '</button>' +
-            '<span class="w-7 h-7 rounded-lg bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 font-mono-code">#' + (idx + 1) + '</span>' +
-            '<div class="font-mono-code text-xs sm:text-sm tracking-wide bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 space-x-2 shadow-xs">' +
-            '<span class="font-extrabold text-slate-900">' + item[0] + '</span>' +
-            '<span class="text-slate-400 font-sans font-semibold">vs</span>' +
-            '<span class="font-extrabold text-slate-900">' + item[1] + '</span>' +
-            '</div>' +
-            '</div>' +
-            '<div class="flex items-center gap-2 shrink-0 self-end md:self-auto">' +
-            '<button type="button" onclick="recordM1Answer(' + idx + ', true)" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ' + sameBtnClass + '">' +
-            '<i class="fa-solid fa-check"></i> SAMA' +
-            '</button>' +
-            '<button type="button" onclick="recordM1Answer(' + idx + ', false)" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ' + diffBtnClass + '">' +
-            '<i class="fa-solid fa-xmark"></i> BERBEDA' +
-            '</button>' +
-            '</div>' +
-            '</div>';
+            '</div></div>';
         });
         html += '</div>';
-      } 
+      }
       else if (tab === 2) {
         html += '<div class="border-b border-slate-100 pb-3">' +
           '<span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300 tracking-wider">' +
-          'Sesi 2 &bull; Respon Situasional Lapangan (20 Skenario &bull; Durasi 15 Menit)' +
+          'Sesi 2 &bull; Respon Situasional Lapangan (' + rawModul2.length + ' Skenario &bull; Durasi 15 Menit)' +
           '</span>' +
-          '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Skenario Friksi Operasional Site &amp; Refleksi Kerja</h3>' +
-          '<p class="text-xs text-slate-500">Pilihlah salah satu tindakan yang paling mencerminkan respon spontan yang benar-benar akan Anda lakukan saat berada dalam situasi tersebut.</p>' +
+          '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Evaluasi Respon Spontan &amp; Ketahanan Friksi Kerja</h3>' +
+          '<p class="text-xs text-slate-500">Pilihlah salah satu tindakan yang paling mencerminkan respon nyata yang akan Anda lakukan di lapangan tambang.</p>' +
           '</div>' +
           '<div class="space-y-4 pt-2">';
 
@@ -2444,11 +1517,11 @@
             '</div>' +
             '<div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/80">';
 
-          item.opts.forEach((opt) => {
+          item.opts.forEach((opt, optIdx) => {
             const isChecked = selectedScore === opt.score;
             const cardClass = isChecked ? 'bg-amber-50 border-amber-500 font-semibold text-slate-900 ring-1 ring-amber-500 shadow-xs' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300';
 
-            html += '<label onclick="recordM2Answer(' + idx + ', ' + opt.score + ')" class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition text-xs sm:text-sm ' + cardClass + '">' +
+            html += '<label onclick="recordM2Answer(' + idx + ', ' + opt.score + ', ' + optIdx + ')" class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition text-xs sm:text-sm ' + cardClass + '">' +
               '<input type="radio" name="' + qId + '" ' + (isChecked ? 'checked' : '') + ' class="mt-0.5 text-amber-600 focus:ring-0 bg-white border-slate-300">' +
               '<span class="leading-relaxed">' + opt.t + '</span>' +
               '</label>';
@@ -2461,56 +1534,46 @@
       else if (tab === 3) {
         html += '<div class="border-b border-slate-100 pb-3">' +
           '<span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-300 tracking-wider">' +
-          'Sesi 3 &bull; Pemilihan Gaya Kerja (20 Pasang &bull; Durasi 20 Menit)' +
+          'Sesi 3 &bull; Pemilihan Gaya Kerja (' + rawModul3.length + ' Pasang &bull; Durasi 20 Menit)' +
           '</span>' +
-          '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Pemilihan Paksa (Forced-Choice A vs B) Gaya Kerja</h3>' +
-          '<p class="text-xs text-slate-500">Kedua pernyataan bernilai positif. Pilihlah salah satu (A atau B) yang <strong>paling mencerminkan kebiasaan kerja harian Anda</strong>.</p>' +
+          '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Preferensi Gaya &amp; Karakteristik Kerja Tim (A vs B)</h3>' +
+          '<p class="text-xs text-slate-500">Pilihlah salah satu pernyataan (A atau B) yang paling mendekati kebiasaan dan orientasi kerja Anda sehari-hari.</p>' +
           '</div>' +
           '<div class="space-y-4 pt-2">';
 
-        rawModul3.forEach((item, idx) => {
+        rawModul3.forEach((pair, idx) => {
           const qId = 'm3_' + idx;
-          const selectedOpt = candidateData.answers[qId];
+          const selectedChoice = candidateData.answers[qId];
           const isFlagged = candidateData.flagged[qId] === true;
           const flagBtnClass = isFlagged ? 'bg-amber-100 text-amber-800 border-amber-300 font-bold' : 'bg-slate-100 text-slate-400 hover:text-amber-600 border-slate-200';
 
-          const aCardClass = selectedOpt === 'A' ? 'bg-amber-50 border-amber-500 text-slate-900 font-bold ring-1 ring-amber-500 shadow-xs' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300';
-          const aBadgeClass = selectedOpt === 'A' ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-100 text-slate-700 border border-slate-200';
-
-          const bCardClass = selectedOpt === 'B' ? 'bg-amber-50 border-amber-500 text-slate-950 font-bold ring-1 ring-amber-500 shadow-xs' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300';
-          const bBadgeClass = selectedOpt === 'B' ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-100 text-slate-700 border border-slate-200';
-
           html += '<div id="qcard_3_' + idx + '" class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3">' +
-            '<div class="flex items-center justify-between">' +
-            '<div class="flex items-center gap-2">' +
-            '<span class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 text-xs font-bold font-mono-code">Pasangan Butir #' + (idx + 1) + '</span>' +
-            '<span class="text-[11px] text-slate-400 font-semibold hidden sm:inline">Pilih salah satu (A atau B)</span>' +
-            '</div>' +
-            '<button type="button" onclick="toggleFlagQuestion(' + idx + ')" title="Tandai Ragu-ragu" class="w-8 h-8 rounded-xl border flex items-center justify-center transition ' + flagBtnClass + '">' +
+            '<div class="flex items-start justify-between gap-2.5">' +
+            '<span class="shrink-0 w-7 h-7 rounded-lg bg-purple-100 text-purple-800 text-xs font-bold flex items-center justify-center border border-purple-200 font-mono-code">#' + (idx + 1) + '</span>' +
+            '<button type="button" onclick="toggleFlagQuestion(' + idx + ')" title="Tandai Ragu-ragu" class="shrink-0 w-8 h-8 rounded-xl border flex items-center justify-center transition ' + flagBtnClass + '">' +
             '<i class="fa-solid fa-bookmark text-xs"></i>' +
             '</button>' +
             '</div>' +
-            '<div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">' +
-            '<div onclick="recordForcedChoiceAnswer(' + idx + ', \'A\')" class="p-4 rounded-xl border cursor-pointer transition text-xs sm:text-sm flex items-start gap-3 ' + aCardClass + '">' +
-            '<span class="w-6 h-6 rounded-lg text-xs flex items-center justify-center font-black shrink-0 ' + aBadgeClass + '">A</span>' +
-            '<p class="leading-relaxed">' + item.a + '</p>' +
-            '</div>' +
-            '<div onclick="recordForcedChoiceAnswer(' + idx + ', \'B\')" class="p-4 rounded-xl border cursor-pointer transition text-xs sm:text-sm flex items-start gap-3 ' + bCardClass + '">' +
-            '<span class="w-6 h-6 rounded-lg text-xs flex items-center justify-center font-black shrink-0 ' + bBadgeClass + '">B</span>' +
-            '<p class="leading-relaxed">' + item.b + '</p>' +
-            '</div>' +
-            '</div>' +
-            '</div>';
+            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
+            '<button type="button" onclick="recordM3Answer(' + idx + ', \'A\')" class="p-4 rounded-xl border text-left transition space-y-1.5 ' + (selectedChoice === 'A' ? 'bg-amber-50 border-amber-500 font-semibold text-slate-900 ring-1 ring-amber-500 shadow-xs' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300') + '">' +
+            '<span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">Pernyataan A</span>' +
+            '<p class="text-xs sm:text-sm leading-relaxed">' + pair.a + '</p>' +
+            '</button>' +
+            '<button type="button" onclick="recordM3Answer(' + idx + ', \'B\')" class="p-4 rounded-xl border text-left transition space-y-1.5 ' + (selectedChoice === 'B' ? 'bg-amber-50 border-amber-500 font-semibold text-slate-900 ring-1 ring-amber-500 shadow-xs' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300') + '">' +
+            '<span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">Pernyataan B</span>' +
+            '<p class="text-xs sm:text-sm leading-relaxed">' + pair.b + '</p>' +
+            '</button>' +
+            '</div></div>';
         });
         html += '</div>';
       }
       else if (tab === 4) {
         html += '<div class="border-b border-slate-100 pb-3">' +
           '<span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 tracking-wider">' +
-          'Sesi 4 &bull; Pengambilan Keputusan Operasional (15 Kasus &bull; Durasi 23 Menit)' +
+          'Sesi 4 &bull; Keputusan Operasional &amp; SOP (' + rawModul4.length + ' Kasus &bull; Durasi 23 Menit)' +
           '</span>' +
-          '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Studi Kasus Dilema Nyata Operasional Tambang &amp; Gudang</h3>' +
-          '<p class="text-xs text-slate-500">Pilihlah satu tindakan yang paling tepat, beretika, dan taat terhadap alur prosedur standar kerja di area site.</p>' +
+          '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Integritas Standar K3, Etika Kerja &amp; Kepatuhan Prosedur</h3>' +
+          '<p class="text-xs text-slate-500">Evaluasi kasus riil operasional tambang. Pilihlah satu tindakan terbaik yang paling tepat dan taat pada SOP.</p>' +
           '</div>' +
           '<div class="space-y-4 pt-2">';
 
@@ -2532,11 +1595,11 @@
             '</div>' +
             '<div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/80">';
 
-          item.opts.forEach((opt) => {
+          item.opts.forEach((opt, optIdx) => {
             const isChecked = selectedScore === opt.score;
             const cardClass = isChecked ? 'bg-amber-50 border-amber-500 font-semibold text-slate-900 ring-1 ring-amber-500 shadow-xs' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300';
 
-            html += '<label onclick="recordM4Answer(' + idx + ', ' + opt.score + ')" class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition text-xs sm:text-sm ' + cardClass + '">' +
+            html += '<label onclick="recordM4Answer(' + idx + ', ' + opt.score + ', ' + optIdx + ')" class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition text-xs sm:text-sm ' + cardClass + '">' +
               '<input type="radio" name="' + qId + '" ' + (isChecked ? 'checked' : '') + ' class="mt-0.5 text-amber-600 focus:ring-0 bg-white border-slate-300">' +
               '<span class="leading-relaxed">' + opt.t + '</span>' +
               '</label>';
@@ -2549,10 +1612,10 @@
       else if (tab === 5) {
         html += '<div class="border-b border-slate-100 pb-3">' +
           '<span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-slate-200 text-slate-800 border border-slate-300 tracking-wider">' +
-          'Sesi 5 &bull; Kalkulasi Data &amp; Formula Perangkat (15 Butir &bull; Durasi 22 Menit)' +
+          'Sesi 5 &bull; Kalkulasi &amp; Formula Spreadsheet (' + rawModul5.length + ' Butir &bull; Durasi 22 Menit)' +
           '</span>' +
-          '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Uji Formula Spreadsheet, Fitur Kerja &amp; Hitungan Stok</h3>' +
-          '<p class="text-xs text-slate-500">Pilihlah salah satu formula atau hasil kalkulasi yang paling tepat secara matematis dan sistematis.</p>' +
+          '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Logika Hitungan, Konversi Logistik &amp; Rumus Formula</h3>' +
+          '<p class="text-xs text-slate-500">Pilihlah salah satu jawaban yang paling tepat untuk setiap soal perhitungan numerik dan formula data.</p>' +
           '</div>' +
           '<div class="space-y-4 pt-2">';
 
@@ -2606,17 +1669,16 @@
         html += '</div>';
       }
       else if (tab === 6) {
-        const roleData = rawModul6[candidateData.posisiKey] || rawModul6['storeman'];
         html += '<div class="border-b border-slate-100 pb-3">' +
           '<span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 font-bold tracking-wider">' +
-          'Sesi 6 &bull; Formasi: ' + candidateData.posisi + ' (15 Butir &bull; Durasi 20 Menit)' +
+          'Sesi 6 &bull; Formasi: ' + candidateData.posisi + ' (' + rawModul6.length + ' Butir &bull; Durasi 20 Menit)' +
           '</span>' +
           '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Uji Penguasaan Teknis &amp; Prosedur Praktis Lapangan</h3>' +
           '<p class="text-xs text-slate-500">Butir evaluasi disesuaikan khusus dengan kebutuhan formasi tugas operasional yang Anda lamar.</p>' +
           '</div>' +
           '<div class="space-y-4 pt-2">';
 
-        roleData.forEach((item, idx) => {
+        rawModul6.forEach((item, idx) => {
           const qId = 'm6_' + idx;
           const selectedOptIdx = candidateData.answers[qId];
           const isFlagged = candidateData.flagged[qId] === true;
@@ -2651,6 +1713,171 @@
 
       container.innerHTML = html;
       updateModuleAnsweredCounter();
+    }
+
+    // ------------------------------------------
+    // PENCATATAN JAWABAN TIAP MODUL
+    // ------------------------------------------
+    function recordM1Answer(idx, isSame) {
+      candidateData.answers['m1_' + idx] = isSame;
+      renderCurrentModuleContent(1);
+      renderQuestionGridPalette(1);
+    }
+
+    function recordM2Answer(idx, score, optIdx) {
+      candidateData.answers['m2_' + idx] = score;
+      renderCurrentModuleContent(2);
+      renderQuestionGridPalette(2);
+    }
+
+    function recordM3Answer(idx, choice) {
+      candidateData.answers['m3_' + idx] = choice;
+      renderCurrentModuleContent(3);
+      renderQuestionGridPalette(3);
+    }
+
+    function recordM4Answer(idx, score, optIdx) {
+      candidateData.answers['m4_' + idx] = score;
+      renderCurrentModuleContent(4);
+      renderQuestionGridPalette(4);
+    }
+
+    function recordM5Answer(idx, origIdx) {
+      candidateData.answers['m5_' + idx] = origIdx;
+      renderCurrentModuleContent(5);
+      renderQuestionGridPalette(5);
+    }
+
+    function recordM6Answer(idx, origIdx) {
+      candidateData.answers['m6_' + idx] = origIdx;
+      renderCurrentModuleContent(6);
+      renderQuestionGridPalette(6);
+    }
+
+    function toggleFlagQuestion(idx) {
+      const qId = 'm' + activeModule + '_' + idx;
+      candidateData.flagged[qId] = !candidateData.flagged[qId];
+      renderCurrentModuleContent(activeModule);
+      renderQuestionGridPalette(activeModule);
+    }
+
+    // ------------------------------------------
+    // PALET KISI NOMOR & PROGRES JAWABAN
+    // ------------------------------------------
+    function getModuleTotalQuestions(modNum) {
+      if (modNum === 1) return rawModul1.length;
+      if (modNum === 2) return rawModul2.length;
+      if (modNum === 3) return rawModul3.length;
+      if (modNum === 4) return rawModul4.length;
+      if (modNum === 5) return rawModul5.length;
+      if (modNum === 6) return rawModul6.length;
+      return 0;
+    }
+
+    function getModuleAnsweredCount(modNum) {
+      let count = 0;
+      const total = getModuleTotalQuestions(modNum);
+      for (let i = 0; i < total; i++) {
+        if (candidateData.answers['m' + modNum + '_' + i] !== undefined) count++;
+      }
+      return count;
+    }
+
+    function updateModuleAnsweredCounter() {
+      const total = getModuleTotalQuestions(activeModule);
+      const answered = getModuleAnsweredCount(activeModule);
+      const pct = total ? Math.round((answered / total) * 100) : 0;
+
+      const answeredEl = document.getElementById('moduleAnsweredCount');
+      const pctEl = document.getElementById('modulePercentageCount');
+      const barEl = document.getElementById('examProgressBar');
+      const dockCounter = document.getElementById('dockCounter');
+
+      if (answeredEl) answeredEl.textContent = answered + '/' + total;
+      if (pctEl) pctEl.textContent = pct + '%';
+      if (barEl) barEl.style.width = pct + '%';
+      if (dockCounter) dockCounter.textContent = answered + '/' + total;
+    }
+
+    function renderQuestionGridPalette(modNum) {
+      const container = document.getElementById('questionGridContainer');
+      const total = getModuleTotalQuestions(modNum);
+      let html = '';
+
+      for (let i = 0; i < total; i++) {
+        const qId = 'm' + modNum + '_' + i;
+        const isAnswered = candidateData.answers[qId] !== undefined;
+        const isFlagged = candidateData.flagged[qId] === true;
+
+        let btnClass = 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200';
+        if (isFlagged) {
+          btnClass = 'bg-amber-400 text-slate-950 border-amber-500 font-black';
+        } else if (isAnswered) {
+          btnClass = 'bg-emerald-600 text-white border-emerald-600 font-bold';
+        }
+
+        html += '<button type="button" onclick="scrollToQuestionCard(' + i + ')" class="w-full py-2 rounded-xl text-xs border font-mono-code transition flex items-center justify-center ' + btnClass + '">' +
+          (i + 1) +
+          '</button>';
+      }
+
+      container.innerHTML = html;
+      updateModuleAnsweredCounter();
+    }
+
+    function scrollToQuestionCard(idx) {
+      const el = document.getElementById('qcard_' + activeModule + '_' + idx);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('ring-2', 'ring-amber-500');
+        setTimeout(() => el.classList.remove('ring-2', 'ring-amber-500'), 1500);
+      }
+    }
+
+    function jumpToFirstUnanswered() {
+      const total = getModuleTotalQuestions(activeModule);
+      for (let i = 0; i < total; i++) {
+        if (candidateData.answers['m' + activeModule + '_' + i] === undefined) {
+          scrollToQuestionCard(i);
+          return;
+        }
+      }
+      showCustomDialog('Seluruh Butir Terisi', 'Seluruh butir soal pada modul ini telah Anda jawab.', false);
+    }
+
+    function updateStepBadges() {
+      for (let i = 1; i <= 6; i++) {
+        const el = document.getElementById('stepBadge' + i);
+        if (!el) continue;
+
+        if (i === activeModule) {
+          el.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 flex items-center gap-1.5 shrink-0 shadow-xs';
+        } else if (moduleSubmittedStatus[i]) {
+          el.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5 shrink-0';
+          el.innerHTML = '<i class="fa-solid fa-check text-[11px]"></i><span>M' + i + ' Terkunci</span>';
+        } else {
+          el.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 flex items-center gap-1.5 shrink-0 border border-slate-200';
+          el.innerHTML = '<i class="fa-solid fa-lock text-[11px]"></i><span>M' + i + '</span>';
+        }
+      }
+
+      const footerLabel = document.getElementById('btnFooterSubmitLabel');
+      if (footerLabel) {
+        footerLabel.textContent = activeModule === 6 ? 'SELESAIKAN MODUL 6 & KUNCI SELURUH EVALUASI' : 'SELESAIKAN MODUL ' + activeModule + ' & LANJUT KE TAHAP BERIKUTNYA';
+      }
+    }
+
+    function adjustExamFontSize(delta) {
+      if (delta === 0) currentFontSizeLevel = 0;
+      else currentFontSizeLevel = Math.max(-1, Math.min(2, currentFontSizeLevel + delta));
+
+      const arena = document.getElementById('moduleContentContainer');
+      if (!arena) return;
+
+      if (currentFontSizeLevel === -1) arena.style.fontSize = '90%';
+      else if (currentFontSizeLevel === 1) arena.style.fontSize = '110%';
+      else if (currentFontSizeLevel === 2) arena.style.fontSize = '120%';
+      else arena.style.fontSize = '100%';
     }
   </script>
 </body>
