@@ -136,7 +136,7 @@
         <div class="relative z-10 max-w-3xl space-y-4">
           <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold tracking-wide">
             <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-            <span>PORTAL ASESMEN RESMI PLANT LOGISTIC DEPARTMENT</span>
+            <span>PORTAL ASESMEN RESMI PLANT &amp; LOGISTIC DEPARTMENT</span>
           </div>
 
           <h2 class="text-2xl sm:text-4xl font-black text-white leading-tight tracking-tight">
@@ -715,20 +715,12 @@
   <!-- Footer -->
   <footer class="bg-white text-slate-500 text-xs py-5 px-4 text-center border-t border-slate-200 mt-8 space-y-2">
     <div>
-      <p class="font-semibold text-slate-700">Plant Department &bull; E-Recruitment Assessment Center</p>
+      <p class="font-semibold text-slate-700">Plant &amp; Logistic Department &bull; E-Recruitment Assessment Center</p>
       <p class="text-slate-400 text-[11px] mt-0.5">PT. KTC Coal Mining &amp; Energy &bull; Site Muara Teweh, Barito Utara, Kalimantan Tengah</p>
     </div>
     <div class="pt-2 border-t border-slate-100 max-w-2xl mx-auto space-y-1">
       <p class="text-slate-600 text-[11px] font-semibold tracking-wide">
-        Sistem Asesmen Terpadu ini dirancang dan dikembangkan secara khusus oleh</span>
-        <a href="https://www.linkedin.com/in/adi-pranata-86449658/" 
-           target="_blank" 
-           rel="noopener noreferrer" 
-           title="Kunjungi Profil LinkedIn Adi Pranata"
-           class="inline-flex items-center gap-1 text-amber-600 hover:text-blue-600 font-extrabold underline underline-offset-2 transition-colors duration-200">
-          <i class="fa-brands fa-linkedin text-sm"></i>
-          <span>Adi Pranata</span>
-        </a>
+        Sistem Asesmen Terpadu ini dirancang dan dikembangkan secara khusus oleh <span class="text-slate-900 font-extrabold">Adi Pranata</span> untuk PT KTC Coal Mining &amp; Energy.
       </p>
       <p class="text-slate-400 text-[10px] leading-relaxed">
         &copy; 2026 PT KTC Coal Mining &amp; Energy &bull; Seluruh Hak Cipta Dilindungi Undang-Undang Republik Indonesia. Segala bentuk penggandaan, rekayasa balik (reverse engineering), adaptasi, maupun distribusi tanpa izin tertulis dari pemegang hak cipta dilarang keras dan dapat dikenakan sanksi hukum yang berlaku.
@@ -1251,11 +1243,13 @@
         if (userAns === isActuallySame) m1Score += 2;
       });
 
-      // M2
+      // M2: Ambil skor berdasarkan optIdx pilihan kandidat
       let m2Sum = 0;
-      rawModul2.forEach((_, idx) => {
-        const val = candidateData.answers['m2_' + idx];
-        if (typeof val === 'number') m2Sum += val;
+      rawModul2.forEach((item, idx) => {
+        const selectedIdx = candidateData.answers['m2_' + idx];
+        if (typeof selectedIdx === 'number' && item.opts[selectedIdx]) {
+          m2Sum += item.opts[selectedIdx].score;
+        }
       });
       const m2Score = rawModul2.length ? Math.round(m2Sum / rawModul2.length) : 0;
 
@@ -1266,11 +1260,13 @@
       });
       const m3Score = Math.min(100, m3Sum);
 
-      // M4
+      // M4: Ambil skor berdasarkan optIdx pilihan kandidat
       let m4Sum = 0;
-      rawModul4.forEach((_, idx) => {
-        const val = candidateData.answers['m4_' + idx];
-        if (typeof val === 'number') m4Sum += val;
+      rawModul4.forEach((item, idx) => {
+        const selectedIdx = candidateData.answers['m4_' + idx];
+        if (typeof selectedIdx === 'number' && item.opts[selectedIdx]) {
+          m4Sum += item.opts[selectedIdx].score;
+        }
       });
       const m4Score = rawModul4.length ? Math.round(m4Sum / rawModul4.length) : 0;
 
@@ -1510,7 +1506,7 @@
 
         rawModul2.forEach((item, idx) => {
           const qId = 'm2_' + idx;
-          const selectedScore = candidateData.answers[qId];
+          const selectedOptIdx = candidateData.answers[qId];
           const isFlagged = candidateData.flagged[qId] === true;
           const flagBtnClass = isFlagged ? 'bg-amber-100 text-amber-800 border-amber-300 font-bold' : 'bg-slate-100 text-slate-400 hover:text-amber-600 border-slate-200';
 
@@ -1527,13 +1523,13 @@
             '<div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/80">';
 
           item.opts.forEach((opt, optIdx) => {
-            const isChecked = selectedScore === opt.score;
+            const isChecked = selectedOptIdx === optIdx;
             const cardClass = isChecked ? 'bg-amber-50 border-amber-500 font-semibold text-slate-900 ring-1 ring-amber-500 shadow-xs' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300';
 
-            html += '<label onclick="recordM2Answer(' + idx + ', ' + opt.score + ', ' + optIdx + ')" class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition text-xs sm:text-sm ' + cardClass + '">' +
-              '<input type="radio" name="' + qId + '" ' + (isChecked ? 'checked' : '') + ' class="mt-0.5 text-amber-600 focus:ring-0 bg-white border-slate-300">' +
+            html += '<div onclick="recordM2Answer(' + idx + ', ' + optIdx + ')" class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition text-xs sm:text-sm ' + cardClass + '">' +
+              '<input type="radio" name="' + qId + '" ' + (isChecked ? 'checked' : '') + ' class="pointer-events-none mt-0.5 text-amber-600 focus:ring-0 bg-white border-slate-300">' +
               '<span class="leading-relaxed">' + opt.t + '</span>' +
-              '</label>';
+              '</div>';
           });
 
           html += '</div></div>';
@@ -1588,7 +1584,7 @@
 
         rawModul4.forEach((item, idx) => {
           const qId = 'm4_' + idx;
-          const selectedScore = candidateData.answers[qId];
+          const selectedOptIdx = candidateData.answers[qId];
           const isFlagged = candidateData.flagged[qId] === true;
           const flagBtnClass = isFlagged ? 'bg-amber-100 text-amber-800 border-amber-300 font-bold' : 'bg-slate-100 text-slate-400 hover:text-amber-600 border-slate-200';
 
@@ -1605,13 +1601,13 @@
             '<div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/80">';
 
           item.opts.forEach((opt, optIdx) => {
-            const isChecked = selectedScore === opt.score;
+            const isChecked = selectedOptIdx === optIdx;
             const cardClass = isChecked ? 'bg-amber-50 border-amber-500 font-semibold text-slate-900 ring-1 ring-amber-500 shadow-xs' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300';
 
-            html += '<label onclick="recordM4Answer(' + idx + ', ' + opt.score + ', ' + optIdx + ')" class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition text-xs sm:text-sm ' + cardClass + '">' +
-              '<input type="radio" name="' + qId + '" ' + (isChecked ? 'checked' : '') + ' class="mt-0.5 text-amber-600 focus:ring-0 bg-white border-slate-300">' +
+            html += '<div onclick="recordM4Answer(' + idx + ', ' + optIdx + ')" class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition text-xs sm:text-sm ' + cardClass + '">' +
+              '<input type="radio" name="' + qId + '" ' + (isChecked ? 'checked' : '') + ' class="pointer-events-none mt-0.5 text-amber-600 focus:ring-0 bg-white border-slate-300">' +
               '<span class="leading-relaxed">' + opt.t + '</span>' +
-              '</label>';
+              '</div>';
           });
 
           html += '</div></div>';
@@ -1667,10 +1663,10 @@
             const isChecked = selectedOptIdx === origIdx;
             const cardClass = isChecked ? 'bg-amber-50 border-amber-500 font-semibold text-slate-900 ring-1 ring-amber-500 shadow-xs' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300';
 
-            html += '<label onclick="recordM5Answer(' + idx + ', ' + origIdx + ')" class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition text-xs sm:text-sm ' + cardClass + '">' +
-              '<input type="radio" name="' + qId + '" ' + (isChecked ? 'checked' : '') + ' class="mt-0.5 text-amber-600 focus:ring-0 bg-white border-slate-300">' +
+            html += '<div onclick="recordM5Answer(' + idx + ', ' + origIdx + ')" class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition text-xs sm:text-sm ' + cardClass + '">' +
+              '<input type="radio" name="' + qId + '" ' + (isChecked ? 'checked' : '') + ' class="pointer-events-none mt-0.5 text-amber-600 focus:ring-0 bg-white border-slate-300">' +
               '<span class="leading-relaxed font-mono-code text-[11px] sm:text-xs">' + opt.t + '</span>' +
-              '</label>';
+              '</div>';
           });
 
           html += '</div></div>';
@@ -1709,10 +1705,10 @@
             const isChecked = selectedOptIdx === origIdx;
             const cardClass = isChecked ? 'bg-amber-50 border-amber-500 font-semibold text-slate-900 ring-1 ring-amber-500 shadow-xs' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300';
 
-            html += '<label onclick="recordM6Answer(' + idx + ', ' + origIdx + ')" class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition text-xs sm:text-sm ' + cardClass + '">' +
-              '<input type="radio" name="' + qId + '" ' + (isChecked ? 'checked' : '') + ' class="mt-0.5 text-amber-600 focus:ring-0 bg-white border-slate-300">' +
+            html += '<div onclick="recordM6Answer(' + idx + ', ' + origIdx + ')" class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition text-xs sm:text-sm ' + cardClass + '">' +
+              '<input type="radio" name="' + qId + '" ' + (isChecked ? 'checked' : '') + ' class="pointer-events-none mt-0.5 text-amber-600 focus:ring-0 bg-white border-slate-300">' +
               '<span class="leading-relaxed">' + opt.t + '</span>' +
-              '</label>';
+              '</div>';
           });
 
           html += '</div></div>';
@@ -1733,8 +1729,8 @@
       renderQuestionGridPalette(1);
     }
 
-    function recordM2Answer(idx, score, optIdx) {
-      candidateData.answers['m2_' + idx] = score;
+    function recordM2Answer(idx, optIdx) {
+      candidateData.answers['m2_' + idx] = optIdx;
       renderCurrentModuleContent(2);
       renderQuestionGridPalette(2);
     }
@@ -1745,8 +1741,8 @@
       renderQuestionGridPalette(3);
     }
 
-    function recordM4Answer(idx, score, optIdx) {
-      candidateData.answers['m4_' + idx] = score;
+    function recordM4Answer(idx, optIdx) {
+      candidateData.answers['m4_' + idx] = optIdx;
       renderCurrentModuleContent(4);
       renderQuestionGridPalette(4);
     }
