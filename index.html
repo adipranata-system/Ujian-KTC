@@ -661,8 +661,14 @@
               <p id="syncStatusSubtitle" class="text-xs text-slate-500">Seluruh lembar respon dan bukti presensi Anda sedang disinkronkan ke Pusat Data Rekrutmen PT KTC...</p>
             </div>
           </div>
-          <div class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-50 text-slate-600 border border-slate-200 shrink-0 self-center sm:self-auto">
-            <i class="fa-solid fa-lock text-slate-400 mr-1"></i> Data Terkunci Resmi
+          <div class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-50 text-slate-600 border border-slate-200 shrink-0 self-center sm:self-auto flex items-center gap-2">
+            <div id="retrySyncContainer" class="hidden">
+              <button type="button" id="btnManualRetrySync" onclick="retryPendingSyncPayload()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span id="btnManualRetryLabel">Coba Kirim Ulang Hasil</span>
+              </button>
+            </div>
+            <span id="statusTerkunciBadge" class="flex items-center"><i class="fa-solid fa-lock text-slate-400 mr-1"></i> Data Terkunci Resmi</span>
           </div>
         </div>
       </div>
@@ -775,6 +781,41 @@
       answers: {},
       flagged: {}
     };
+
+    // ------------------------------------------
+    // STORAGE KEYS & LOCAL PERSISTENCE HELPERS
+    // ------------------------------------------
+    const STORAGE_KEY_SESSION = "KTC_ACTIVE_EXAM_SESSION";
+    const STORAGE_KEY_PENDING = "KTC_PENDING_SUBMIT_PAYLOAD";
+
+    function saveExamSessionLocally() {
+      if (!candidateData.nik || !isCheatTrackingActive) return;
+      try {
+        const sessionPayload = {
+          candidateData: candidateData,
+          activeModule: activeModule,
+          currentModuleSecondsLeft: currentModuleSecondsLeft,
+          moduleSubmittedStatus: moduleSubmittedStatus,
+          rawModul1: rawModul1,
+          rawModul2: rawModul2,
+          rawModul3: rawModul3,
+          rawModul4: rawModul4,
+          rawModul5: rawModul5,
+          rawModul6: rawModul6,
+          savedAt: Date.now()
+        };
+        localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(sessionPayload));
+      } catch (errStorage) {
+        console.warn("Gagal menyimpan ke localStorage:", errStorage);
+      }
+    }
+
+    function clearExamSessionLocally() {
+      try {
+        localStorage.removeItem(STORAGE_KEY_SESSION);
+        localStorage.removeItem(STORAGE_KEY_PENDING);
+      } catch (_) {}
+    }
 
     // ------------------------------------------
     // JALUR KOMUNIKASI SERVER (FETCH & JSONP)
@@ -943,6 +984,47 @@
         document.getElementById('candPhone').value = candidateData.whatsapp;
         document.getElementById('candRoleDisplay').value = candidateData.posisi;
         document.getElementById('candRole').value = candidateData.posisiKey;
+
+        // OPSI B: Periksa apakah ada sesi lokal aktif yang cocok dengan NIK ini
+        const cachedRaw = localStorage.getItem(STORAGE_KEY_SESSION);
+        if (cachedRaw) {
+          try {
+            const cached = JSON.parse(cachedRaw);
+            if (cached && cached.candidateData && cached.candidateData.nik === cleanNik && cached.rawModul1 && cached.rawModul1.length) {
+              // Pulihkan data dan langsung masuk ke ruang ujian
+              Object.assign(candidateData, cached.candidateData);
+              activeModule = cached.activeModule || 1;
+              currentModuleSecondsLeft = cached.currentModuleSecondsLeft || moduleDurations[activeModule];
+              Object.assign(moduleSubmittedStatus, cached.moduleSubmittedStatus || {});
+              rawModul1 = cached.rawModul1 || [];
+              rawModul2 = cached.rawModul2 || [];
+              rawModul3 = cached.rawModul3 || [];
+              rawModul4 = cached.rawModul4 || [];
+              rawModul5 = cached.rawModul5 || [];
+              rawModul6 = cached.rawModul6 || [];
+
+              statusBox.className = 'p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs space-y-1';
+              statusBox.innerHTML = '<p class="font-black text-emerald-700 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Sesi Ujian Aktif Ditemukan</p>' +
+                '<p class="text-[11px] text-emerald-700">Memulihkan jawaban dan langsung menghubungkan kembali ke lembar ujian...</p>';
+
+              setTimeout(() => {
+                document.getElementById('viewRegistration').classList.add('hidden');
+                document.getElementById('viewLandingPortal').classList.add('hidden');
+                document.getElementById('viewExamArena').classList.remove('hidden');
+                document.getElementById('examMonitor').classList.remove('hidden');
+                document.getElementById('mobileExamDock').classList.remove('hidden');
+
+                isCheatTrackingActive = true;
+                initiateModule(activeModule);
+                startExamModuleTimer(currentModuleSecondsLeft);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }, 800);
+              return;
+            }
+          } catch (eResume) {
+            console.warn("Gagal membaca cache sesi:", eResume);
+          }
+        }
 
         statusBox.className = 'p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs space-y-1';
         statusBox.innerHTML = '<p class="font-black text-emerald-700 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> NIK Terverifikasi Sah</p>' +
@@ -1118,6 +1200,11 @@
       examTimerInterval = setInterval(() => {
         currentModuleSecondsLeft--;
         updateTimerDisplay();
+
+        // Auto-save sisa waktu tiap 5 detik
+        if (currentModuleSecondsLeft % 5 === 0) {
+          saveExamSessionLocally();
+        }
 
         if (currentModuleSecondsLeft <= 0) {
           clearInterval(examTimerInterval);
@@ -1322,6 +1409,11 @@
         pelanggaran_tab: candidateData.tabViolations
       };
 
+      // Simpan payload antrean cadangan ke localStorage
+      try {
+        localStorage.setItem(STORAGE_KEY_PENDING, JSON.stringify(payload));
+      } catch (_) {}
+
       try {
         await fetch(GOOGLE_SCRIPT_WEBHOOK_URL, {
           method: 'POST',
@@ -1330,18 +1422,75 @@
           body: JSON.stringify(payload)
         });
 
+        // Sukses kirim: Hapus bersih seluruh penyimpanan lokal
+        clearExamSessionLocally();
+
         syncIcon.className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg shrink-0 border border-emerald-200';
         syncIcon.innerHTML = '<i class="fa-solid fa-cloud-circle-check"></i>';
         syncTitle.textContent = 'Sinkronisasi Pusat Berhasil';
         syncSubtitle.textContent = 'Lembar jawaban dan rekaman audit presensi Anda telah tersimpan permanen di Pusat Data PT KTC.';
+        document.getElementById('retrySyncContainer').classList.add('hidden');
       } catch (errSync) {
         console.warn('Gagal sinkronisasi background:', errSync);
         syncIcon.className = 'w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg shrink-0 border border-amber-200';
         syncIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
         syncTitle.textContent = 'Data Terkunci di Perangkat';
-        syncSubtitle.textContent = 'Ujian Anda telah selesai dan lembar respon telah diamankan di cache browser.';
+        syncSubtitle.textContent = 'Koneksi internet terputus. Lembar respon Anda telah diamankan di perangkat ini.';
+        
+        // Tampilkan tombol coba kirim ulang
+        document.getElementById('retrySyncContainer').classList.remove('hidden');
       }
     }
+
+    // Coba kirim ulang payload yang tertunda saat internet online kembali
+    async function retryPendingSyncPayload() {
+      const rawPending = localStorage.getItem(STORAGE_KEY_PENDING);
+      if (!rawPending) {
+        document.getElementById('retrySyncContainer').classList.add('hidden');
+        return;
+      }
+
+      const btn = document.getElementById('btnManualRetrySync');
+      const label = document.getElementById('btnManualRetryLabel');
+      const syncIcon = document.getElementById('syncStatusIcon');
+      const syncTitle = document.getElementById('syncStatusTitle');
+      const syncSubtitle = document.getElementById('syncStatusSubtitle');
+
+      if (btn) btn.disabled = true;
+      if (label) label.textContent = 'Mengirim Ulang...';
+
+      try {
+        await fetch(GOOGLE_SCRIPT_WEBHOOK_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: rawPending
+        });
+
+        // Berhasil terkirim: hapus bersih penyimpanan lokal
+        clearExamSessionLocally();
+
+        if (syncIcon) {
+          syncIcon.className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg shrink-0 border border-emerald-200';
+          syncIcon.innerHTML = '<i class="fa-solid fa-cloud-circle-check"></i>';
+        }
+        if (syncTitle) syncTitle.textContent = 'Sinkronisasi Pusat Berhasil';
+        if (syncSubtitle) syncSubtitle.textContent = 'Lembar jawaban dan rekaman audit presensi Anda telah tersimpan permanen di Pusat Data PT KTC.';
+        document.getElementById('retrySyncContainer').classList.add('hidden');
+      } catch (errRetry) {
+        console.warn("Gagal coba kirim ulang:", errRetry);
+        if (label) label.textContent = 'Coba Kirim Ulang Hasil';
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    // Auto-retry otomatis ketika peramban mendeteksi koneksi pulih (online)
+    window.addEventListener('online', () => {
+      const pendingData = localStorage.getItem(STORAGE_KEY_PENDING);
+      if (pendingData) {
+        retryPendingSyncPayload();
+      }
+    });
 
     // ------------------------------------------
     // KONTROL AUTO-LOCK & MODAL KONFIRMASI
@@ -1725,36 +1874,42 @@
     // ------------------------------------------
     function recordM1Answer(idx, isSame) {
       candidateData.answers['m1_' + idx] = isSame;
+      saveExamSessionLocally();
       renderCurrentModuleContent(1);
       renderQuestionGridPalette(1);
     }
 
     function recordM2Answer(idx, optIdx) {
       candidateData.answers['m2_' + idx] = optIdx;
+      saveExamSessionLocally();
       renderCurrentModuleContent(2);
       renderQuestionGridPalette(2);
     }
 
     function recordM3Answer(idx, choice) {
       candidateData.answers['m3_' + idx] = choice;
+      saveExamSessionLocally();
       renderCurrentModuleContent(3);
       renderQuestionGridPalette(3);
     }
 
     function recordM4Answer(idx, optIdx) {
       candidateData.answers['m4_' + idx] = optIdx;
+      saveExamSessionLocally();
       renderCurrentModuleContent(4);
       renderQuestionGridPalette(4);
     }
 
     function recordM5Answer(idx, origIdx) {
       candidateData.answers['m5_' + idx] = origIdx;
+      saveExamSessionLocally();
       renderCurrentModuleContent(5);
       renderQuestionGridPalette(5);
     }
 
     function recordM6Answer(idx, origIdx) {
       candidateData.answers['m6_' + idx] = origIdx;
+      saveExamSessionLocally();
       renderCurrentModuleContent(6);
       renderQuestionGridPalette(6);
     }
@@ -1762,6 +1917,7 @@
     function toggleFlagQuestion(idx) {
       const qId = 'm' + activeModule + '_' + idx;
       candidateData.flagged[qId] = !candidateData.flagged[qId];
+      saveExamSessionLocally();
       renderCurrentModuleContent(activeModule);
       renderQuestionGridPalette(activeModule);
     }
