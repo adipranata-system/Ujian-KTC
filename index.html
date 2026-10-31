@@ -148,7 +148,7 @@
 
           <div class="pt-2 flex flex-wrap items-center gap-3">
             <button onclick="goToRegistration()" class="px-6 py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-lg hover:shadow-amber-500/30 transition duration-200 flex items-center gap-2.5 active:scale-95">
-              <span>MASUK KE RUANG UJIAN TERPADU (120 MENIT)</span>
+              <span>MASUK KE RUANG UJIAN TERPADU (110 MENIT)</span>
               <i class="fa-solid fa-arrow-right"></i>
             </button>
             <a href="#portalTataTertib" class="px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm rounded-xl border border-white/20 transition flex items-center gap-2">
@@ -167,7 +167,7 @@
           </div>
           <div>
             <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Durasi Total</p>
-            <p class="text-base sm:text-lg font-black text-slate-900 font-mono-code">120 Menit</p>
+            <p class="text-base sm:text-lg font-black text-slate-900 font-mono-code">110 Menit</p>
           </div>
         </div>
 
@@ -206,7 +206,7 @@
       <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-5">
         <div class="border-b border-slate-100 pb-4">
           <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
-            <i class="fa-solid fa-cubes-stacked text-amber-500"></i> Alur 6 Sesi Asesmen &amp; Alokasi Waktu (Total: 120 Menit)
+            <i class="fa-solid fa-cubes-stacked text-amber-500"></i> Alur 6 Sesi Asesmen &amp; Alokasi Waktu (Total: 110 Menit)
           </h3>
           <p class="text-xs text-slate-500 mt-0.5">Sistem evaluasi otomatis terkunci mandiri saat batas waktu setiap modul berakhir.</p>
         </div>
@@ -215,7 +215,7 @@
           <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">Sesi 1 &bull; 50 Soal</span>
-              <span class="text-xs font-bold text-amber-600 font-mono-code">15 Menit</span>
+              <span class="text-xs font-bold text-amber-600 font-mono-code">10 Menit</span>
             </div>
             <h4 class="text-sm font-bold text-slate-900">Verifikasi Pasangan Data</h4>
             <p class="text-xs text-slate-600 leading-relaxed">Periksa kode pada Kolom A dan B secara cermat. Tekan <strong>SAMA</strong> jika identik persis, atau <strong>BERBEDA</strong> jika terdapat selisih huruf, angka, atau spasi.</p>
@@ -233,7 +233,7 @@
           <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-300">Sesi 3 &bull; 20 Pasang</span>
-              <span class="text-xs font-bold text-purple-600 font-mono-code">20 Menit</span>
+              <span class="text-xs font-bold text-purple-600 font-mono-code">15 Menit</span>
             </div>
             <h4 class="text-sm font-bold text-slate-900">Pemilihan Gaya Kerja (A vs B)</h4>
             <p class="text-xs text-slate-600 leading-relaxed">Disajikan dua opsi positif (A dan B). Anda diwajibkan memilih salah satu (A atau B) yang paling mendekati kebiasaan kerja Anda sehari-hari.</p>
@@ -464,7 +464,7 @@
         <div class="flex items-center gap-1.5 sm:gap-2">
           <div id="stepBadge1" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 flex items-center gap-1.5 shrink-0 shadow-xs">
             <i class="fa-solid fa-stopwatch text-[11px]"></i>
-            <span>M1: Ketelitian (15m)</span>
+            <span>M1: Ketelitian (10m)</span>
           </div>
           <div id="stepBadge2" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 flex items-center gap-1.5 shrink-0 border border-slate-200">
             <i class="fa-solid fa-lock text-[11px]"></i>
@@ -472,7 +472,7 @@
           </div>
           <div id="stepBadge3" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 flex items-center gap-1.5 shrink-0 border border-slate-200">
             <i class="fa-solid fa-lock text-[11px]"></i>
-            <span>M3: Tim (20m)</span>
+            <span>M3: Tim (15m)</span>
           </div>
           <div id="stepBadge4" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 flex items-center gap-1.5 shrink-0 border border-slate-200">
             <i class="fa-solid fa-lock text-[11px]"></i>
@@ -766,11 +766,11 @@
     let rawModul5 = [];
     let rawModul6 = [];
 
-    // Durasi resmi 6 modul (Total 120 menit)
+    // Durasi resmi 6 modul (Total 110 menit: M1 10m, M3 15m)
     const moduleDurations = {
-      1: 15 * 60,
+      1: 10 * 60,
       2: 18 * 60,
-      3: 20 * 60,
+      3: 15 * 60,
       4: 23 * 60,
       5: 22 * 60,
       6: 20 * 60
@@ -1162,7 +1162,7 @@
       btnRetake.classList.remove('hidden');
 
       btnStartExam.disabled = false;
-      btnStartLabel.textContent = 'MASUK KE RUANG UJIAN TERPADU (120 MENIT)';
+      btnStartLabel.textContent = 'MASUK KE RUANG UJIAN TERPADU (110 MENIT)';
       statusAlert.className = 'text-center text-[11px] font-bold text-emerald-700';
       statusAlert.textContent = '✓ Foto presensi berhasil diambil dan dibubuhi stempel forensik.';
 
@@ -1350,135 +1350,17 @@
       const syncTitle = document.getElementById('syncStatusTitle');
       const syncSubtitle = document.getElementById('syncStatusSubtitle');
 
-      // Hitung Skor Modul Secara Tersembunyi (HRD Backend)
-      // M1
-      let m1Score = 0;
-      rawModul1.forEach((item, idx) => {
-        const userAns = candidateData.answers['m1_' + idx];
-        const isActuallySame = item[0] === item[1];
-        if (userAns === isActuallySame) m1Score += 2;
-      });
-
-      // M2: Ambil skor berdasarkan optIdx pilihan kandidat
-      let m2Sum = 0;
-      rawModul2.forEach((item, idx) => {
-        const selectedIdx = candidateData.answers['m2_' + idx];
-        if (typeof selectedIdx === 'number' && item.opts[selectedIdx]) {
-          m2Sum += item.opts[selectedIdx].score;
-        }
-      });
-      const m2Score = rawModul2.length ? Math.round(m2Sum / rawModul2.length) : 0;
-
-      // M3
-      let m3Sum = 0;
-      rawModul3.forEach((_, idx) => {
-        if (candidateData.answers['m3_' + idx] !== undefined) m3Sum += 5;
-      });
-      const m3Score = Math.min(100, m3Sum);
-
-      // M4: Ambil skor berdasarkan optIdx pilihan kandidat
-      let m4Sum = 0;
-      rawModul4.forEach((item, idx) => {
-        const selectedIdx = candidateData.answers['m4_' + idx];
-        if (typeof selectedIdx === 'number' && item.opts[selectedIdx]) {
-          m4Sum += item.opts[selectedIdx].score;
-        }
-      });
-      const m4Score = rawModul4.length ? Math.round(m4Sum / rawModul4.length) : 0;
-
-      // M5
-      let m5Score = 0;
-      rawModul5.forEach((item, idx) => {
-        const userIdx = candidateData.answers['m5_' + idx];
-        if (userIdx !== undefined && item.opts[userIdx] && item.opts[userIdx].score === 100) {
-          m5Score += Math.round(100 / (rawModul5.length || 15));
-        }
-      });
-      m5Score = Math.min(100, m5Score);
-
-      // M6
-      let m6Score = 0;
-      rawModul6.forEach((item, idx) => {
-        const userIdx = candidateData.answers['m6_' + idx];
-        if (userIdx !== undefined && item.opts[userIdx] && item.opts[userIdx].score === 100) {
-          m6Score += Math.round(100 / (rawModul6.length || 15));
-        }
-      });
-      m6Score = Math.min(100, m6Score);
-
-      // Total Skor Terbobot
-      const totalScore = Math.round(
-        (m1Score * 0.15) +
-        (m2Score * 0.15) +
-        (m3Score * 0.10) +
-        (m4Score * 0.20) +
-        (m5Score * 0.20) +
-        (m6Score * 0.20)
-      );
-
-      let recommendation = 'MERAH';
-      if (totalScore >= 75) recommendation = 'HIJAU';
-      else if (totalScore >= 60) recommendation = 'KUNING';
-
-      // ----------------------------------------------------
-      // AUDIT NOMOR BUTIR SALAH (SKEMA 2 - BAHAN ASESOR/HRD)
-      // ----------------------------------------------------
-      const wrongM1 = [];
-      rawModul1.forEach((item, idx) => {
-        const userAns = candidateData.answers['m1_' + idx];
-        const isActuallySame = item[0] === item[1];
-        if (userAns !== isActuallySame) wrongM1.push('#' + (idx + 1));
-      });
-
-      const wrongM4 = [];
-      rawModul4.forEach((item, idx) => {
-        const selectedIdx = candidateData.answers['m4_' + idx];
-        if (typeof selectedIdx !== 'number' || !item.opts[selectedIdx] || item.opts[selectedIdx].score < 100) {
-          wrongM4.push('#' + (idx + 1));
-        }
-      });
-
-      const wrongM5 = [];
-      rawModul5.forEach((item, idx) => {
-        const userIdx = candidateData.answers['m5_' + idx];
-        if (userIdx === undefined || !item.opts[userIdx] || item.opts[userIdx].score !== 100) {
-          wrongM5.push('#' + (idx + 1));
-        }
-      });
-
-      const wrongM6 = [];
-      rawModul6.forEach((item, idx) => {
-        const userIdx = candidateData.answers['m6_' + idx];
-        if (userIdx === undefined || !item.opts[userIdx] || item.opts[userIdx].score !== 100) {
-          wrongM6.push('#' + (idx + 1));
-        }
-      });
-
-      const auditParts = [];
-      if (wrongM1.length) auditParts.push('M1: ' + wrongM1.join(', '));
-      if (wrongM4.length) auditParts.push('M4: ' + wrongM4.join(', '));
-      if (wrongM5.length) auditParts.push('M5: ' + wrongM5.join(', '));
-      if (wrongM6.length) auditParts.push('M6: ' + wrongM6.join(', '));
-
-      const detailSalahStr = auditParts.length ? auditParts.join(' | ') : 'Semua Benar / Nihil Salah';
-
+      // Payload jawaban mentah ke server (Penilaian 100% diproses di Backend Code.gs & Soal.gs)
       const payload = {
         timestamp: timeStr,
         nik: candidateData.nik,
         nama: candidateData.nama,
         whatsapp: candidateData.whatsapp,
         posisi: candidateData.posisi,
+        posisiKey: candidateData.posisiKey,
         foto_selfie: candidateData.fotoBase64 || '',
-        skor_ketelitian: m1Score,
-        skor_kesabaran: m2Score,
-        skor_kerjasama: m3Score,
-        skor_integritas_sop: m4Score,
-        skor_logika_hitungan: m5Score,
-        skor_teknis_formasi: m6Score,
-        total_skor_terbobot: totalScore,
-        rekomendasi: recommendation,
         pelanggaran_tab: candidateData.tabViolations,
-        detail_salah: detailSalahStr
+        answers: candidateData.answers || {}
       };
 
       // Simpan payload antrean cadangan ke localStorage
@@ -1664,7 +1546,7 @@
       } catch (err) {
         console.error('Gagal mengambil paket soal:', err);
         btnStart.disabled = false;
-        btnLabel.textContent = 'MASUK KE RUANG UJIAN TERPADU (120 MENIT)';
+        btnLabel.textContent = 'MASUK KE RUANG UJIAN TERPADU (110 MENIT)';
         btnIcon.className = 'fa-solid fa-arrow-right';
         showCustomDialog('Gagal Memuat Soal', 'Terjadi kendala saat mengambil paket soal dari server: ' + err.message + '. Silakan coba beberapa saat lagi.', true);
       }
@@ -1680,7 +1562,7 @@
       if (tab === 1) {
         html += '<div class="border-b border-slate-100 pb-3">' +
           '<span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 tracking-wider">' +
-          'Sesi 1 &bull; Verifikasi Pasangan Data (' + rawModul1.length + ' Butir &bull; Durasi 15 Menit)' +
+          'Sesi 1 &bull; Verifikasi Pasangan Data (' + rawModul1.length + ' Butir &bull; Durasi 10 Menit)' +
           '</span>' +
           '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Uji Ketelitian &amp; Verifikasi Data Alfanumerik</h3>' +
           '<p class="text-xs text-slate-500">Bandingkan kode Kolom A dan B secara cermat. Tekan <strong>SAMA</strong> jika identik persis, atau <strong>BERBEDA</strong> jika terdapat selisih huruf, angka, atau spasi.</p>' +
@@ -1760,7 +1642,7 @@
       else if (tab === 3) {
         html += '<div class="border-b border-slate-100 pb-3">' +
           '<span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-300 tracking-wider">' +
-          'Sesi 3 &bull; Pemilihan Gaya Kerja (' + rawModul3.length + ' Pasang &bull; Durasi 20 Menit)' +
+          'Sesi 3 &bull; Pemilihan Gaya Kerja (' + rawModul3.length + ' Pasang &bull; Durasi 15 Menit)' +
           '</span>' +
           '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Preferensi Gaya &amp; Karakteristik Kerja Tim (A vs B)</h3>' +
           '<p class="text-xs text-slate-500">Pilihlah salah satu pernyataan (A atau B) yang paling mendekati kebiasaan dan orientasi kerja Anda sehari-hari.</p>' +
@@ -2114,3 +1996,4 @@
     }
   </script>
 </body>
+</html>
