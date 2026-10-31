@@ -82,7 +82,7 @@
         <div id="timerContainer" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-400 shadow-inner transition-colors duration-300">
           <i id="timerIcon" class="fa-solid fa-stopwatch text-sm animate-pulse"></i>
           <span class="text-xs font-bold text-slate-300 hidden sm:inline">Sisa Waktu:</span>
-          <span id="timerDisplay" class="font-mono-code font-black text-sm sm:text-base tracking-wider text-amber-400">18:00</span>
+          <span id="timerDisplay" class="font-mono-code font-black text-sm sm:text-base tracking-wider text-amber-400">15:00</span>
         </div>
 
         <!-- Tombol Selesai Cepat Modul -->
@@ -215,7 +215,7 @@
           <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">Sesi 1 &bull; 50 Soal</span>
-              <span class="text-xs font-bold text-amber-600 font-mono-code">18 Menit</span>
+              <span class="text-xs font-bold text-amber-600 font-mono-code">15 Menit</span>
             </div>
             <h4 class="text-sm font-bold text-slate-900">Verifikasi Pasangan Data</h4>
             <p class="text-xs text-slate-600 leading-relaxed">Periksa kode pada Kolom A dan B secara cermat. Tekan <strong>SAMA</strong> jika identik persis, atau <strong>BERBEDA</strong> jika terdapat selisih huruf, angka, atau spasi.</p>
@@ -224,7 +224,7 @@
           <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-300">Sesi 2 &bull; 20 Skenario</span>
-              <span class="text-xs font-bold text-blue-600 font-mono-code">15 Menit</span>
+              <span class="text-xs font-bold text-blue-600 font-mono-code">18 Menit</span>
             </div>
             <h4 class="text-sm font-bold text-slate-900">Respon Situasional Lapangan</h4>
             <p class="text-xs text-slate-600 leading-relaxed">Bacalah skenario situasi friksi kerja site. Pilihlah satu tindakan yang paling mencerminkan respon spontan yang benar-benar akan Anda lakukan.</p>
@@ -464,11 +464,11 @@
         <div class="flex items-center gap-1.5 sm:gap-2">
           <div id="stepBadge1" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 flex items-center gap-1.5 shrink-0 shadow-xs">
             <i class="fa-solid fa-stopwatch text-[11px]"></i>
-            <span>M1: Ketelitian (18m)</span>
+            <span>M1: Ketelitian (15m)</span>
           </div>
           <div id="stepBadge2" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 flex items-center gap-1.5 shrink-0 border border-slate-200">
             <i class="fa-solid fa-lock text-[11px]"></i>
-            <span>M2: Emosi (15m)</span>
+            <span>M2: Emosi (18m)</span>
           </div>
           <div id="stepBadge3" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 flex items-center gap-1.5 shrink-0 border border-slate-200">
             <i class="fa-solid fa-lock text-[11px]"></i>
@@ -726,7 +726,7 @@
     </div>
     <div class="pt-2 border-t border-slate-100 max-w-2xl mx-auto space-y-1">
       <p class="text-slate-600 text-[11px] font-semibold tracking-wide">
-        Sistem ini dirancang dan dikembangkan secara khusus oleh </span>
+        Sistem ini dirancang dan dikembangkan secara khusus oleh</span>
         <a href="https://www.linkedin.com/in/adi-pranata-86449658/" 
            target="_blank" 
            rel="noopener noreferrer" 
@@ -768,8 +768,8 @@
 
     // Durasi resmi 6 modul (Total 120 menit)
     const moduleDurations = {
-      1: 18 * 60,
-      2: 15 * 60,
+      1: 15 * 60,
+      2: 18 * 60,
       3: 20 * 60,
       4: 23 * 60,
       5: 22 * 60,
@@ -1198,6 +1198,12 @@
       renderQuestionGridPalette(modNum);
       updateModuleAnsweredCounter();
       startExamModuleTimer(currentModuleSecondsLeft);
+
+      // Auto-fokus otomatis ke kotak judul soal pertama
+      const contentEl = document.getElementById('moduleContentContainer');
+      if (contentEl) {
+        contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
 
     function startExamModuleTimer(seconds) {
@@ -1414,6 +1420,48 @@
       if (totalScore >= 75) recommendation = 'HIJAU';
       else if (totalScore >= 60) recommendation = 'KUNING';
 
+      // ----------------------------------------------------
+      // AUDIT NOMOR BUTIR SALAH (SKEMA 2 - BAHAN ASESOR/HRD)
+      // ----------------------------------------------------
+      const wrongM1 = [];
+      rawModul1.forEach((item, idx) => {
+        const userAns = candidateData.answers['m1_' + idx];
+        const isActuallySame = item[0] === item[1];
+        if (userAns !== isActuallySame) wrongM1.push('#' + (idx + 1));
+      });
+
+      const wrongM4 = [];
+      rawModul4.forEach((item, idx) => {
+        const selectedIdx = candidateData.answers['m4_' + idx];
+        if (typeof selectedIdx !== 'number' || !item.opts[selectedIdx] || item.opts[selectedIdx].score < 100) {
+          wrongM4.push('#' + (idx + 1));
+        }
+      });
+
+      const wrongM5 = [];
+      rawModul5.forEach((item, idx) => {
+        const userIdx = candidateData.answers['m5_' + idx];
+        if (userIdx === undefined || !item.opts[userIdx] || item.opts[userIdx].score !== 100) {
+          wrongM5.push('#' + (idx + 1));
+        }
+      });
+
+      const wrongM6 = [];
+      rawModul6.forEach((item, idx) => {
+        const userIdx = candidateData.answers['m6_' + idx];
+        if (userIdx === undefined || !item.opts[userIdx] || item.opts[userIdx].score !== 100) {
+          wrongM6.push('#' + (idx + 1));
+        }
+      });
+
+      const auditParts = [];
+      if (wrongM1.length) auditParts.push('M1: ' + wrongM1.join(', '));
+      if (wrongM4.length) auditParts.push('M4: ' + wrongM4.join(', '));
+      if (wrongM5.length) auditParts.push('M5: ' + wrongM5.join(', '));
+      if (wrongM6.length) auditParts.push('M6: ' + wrongM6.join(', '));
+
+      const detailSalahStr = auditParts.length ? auditParts.join(' | ') : 'Semua Benar / Nihil Salah';
+
       const payload = {
         timestamp: timeStr,
         nik: candidateData.nik,
@@ -1429,7 +1477,8 @@
         skor_teknis_formasi: m6Score,
         total_skor_terbobot: totalScore,
         rekomendasi: recommendation,
-        pelanggaran_tab: candidateData.tabViolations
+        pelanggaran_tab: candidateData.tabViolations,
+        detail_salah: detailSalahStr
       };
 
       // Simpan payload antrean cadangan ke localStorage
@@ -1631,7 +1680,7 @@
       if (tab === 1) {
         html += '<div class="border-b border-slate-100 pb-3">' +
           '<span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 tracking-wider">' +
-          'Sesi 1 &bull; Verifikasi Pasangan Data (' + rawModul1.length + ' Butir &bull; Durasi 18 Menit)' +
+          'Sesi 1 &bull; Verifikasi Pasangan Data (' + rawModul1.length + ' Butir &bull; Durasi 15 Menit)' +
           '</span>' +
           '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Uji Ketelitian &amp; Verifikasi Data Alfanumerik</h3>' +
           '<p class="text-xs text-slate-500">Bandingkan kode Kolom A dan B secara cermat. Tekan <strong>SAMA</strong> jika identik persis, atau <strong>BERBEDA</strong> jika terdapat selisih huruf, angka, atau spasi.</p>' +
@@ -1669,7 +1718,7 @@
       else if (tab === 2) {
         html += '<div class="border-b border-slate-100 pb-3">' +
           '<span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300 tracking-wider">' +
-          'Sesi 2 &bull; Respon Situasional Lapangan (' + rawModul2.length + ' Skenario &bull; Durasi 15 Menit)' +
+          'Sesi 2 &bull; Respon Situasional Lapangan (' + rawModul2.length + ' Skenario &bull; Durasi 18 Menit)' +
           '</span>' +
           '<h3 class="text-base sm:text-lg font-bold text-slate-900 mt-2">Evaluasi Respon Spontan &amp; Ketahanan Friksi Kerja</h3>' +
           '<p class="text-xs text-slate-500">Pilihlah salah satu tindakan yang paling mencerminkan respon nyata yang akan Anda lakukan di lapangan tambang.</p>' +
@@ -2065,5 +2114,3 @@
     }
   </script>
 </body>
-</html>
-      
